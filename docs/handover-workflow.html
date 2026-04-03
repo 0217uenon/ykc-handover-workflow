@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>引継ぎ業務フロー管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+// file:// detection: ONLY block on iOS/Android mobile (desktop file:// works fine)
+if (location.protocol === 'file:' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+  document.addEventListener('DOMContentLoaded', function() {
+    var url = 'https://0217uenon.github.io/ykc-ict-tools/handover-workflow.html';
+    document.body.innerHTML =
+      '<div style="max-width:480px;margin:60px auto;padding:24px;font-family:system-ui,sans-serif;text-align:center;color:#1B2A3D">' +
+      '<h2 style="font-size:1.2rem;margin-bottom:12px">スマホで利用するには<br>以下のリンクを開いてください</h2>' +
+      '<p style="font-size:0.9rem;color:#4A5E74;margin-bottom:20px;line-height:1.6">スマホではHTMLファイルを直接開くと<br>アプリが正常に動作しません。</p>' +
+      '<a href="' + url + '" style="display:inline-block;padding:14px 28px;background:#3B82F6;color:#fff;border-radius:10px;text-decoration:none;font-weight:700">Web版を開く</a>' +
+      '<p style="margin-top:16px;font-size:0.75rem;color:#8899AB">URL: ' + url + '</p></div>';
+  });
+}
+</script>
+<style>
+:root {
+  --bg-primary: #F0F4F8;
+  --bg-secondary: #E2E8F0;
+  --bg-card: #FFFFFF;
+  --bg-hover: #EDF2F7;
+  --border-color: #CBD5E0;
+  --border-light: #E2E8F0;
+  --text-primary: #1A202C;
+  --text-secondary: #4A5568;
+  --text-muted: #718096;
+  --accent-blue: #2B6CB0;
+  --accent-blue-light: #3182CE;
+  --accent-blue-soft: rgba(43,108,176,0.08);
+  --accent-green: #276749;
+  --accent-green-soft: rgba(39,103,73,0.08);
+  --accent-amber: #C05621;
+  --accent-amber-soft: rgba(192,86,33,0.08);
+  --accent-red: #C53030;
+  --accent-red-soft: rgba(197,48,48,0.08);
+  --accent-purple: #6B46C1;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --transition: 200ms cubic-bezier(0.4,0,0.2,1);
+  --font-sans: 'Inter','Noto Sans JP',-apple-system,BlinkMacSystemFont,sans-serif;
+  --navbar-h: 56px;
+  --color-black: #1A202C;
+  --color-red: #C53030;
+  --color-blue: #2B6CB0;
+  --color-orange: #C05621;
+  --color-yellow: #B7791F;
+  --color-brown: #7B341E;
+  --color-green: #276749;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);min-height:100vh;min-height:100dvh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:10px}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+
+/* ── Tap utility ── */
+._tap-active{opacity:0.7}
+
+/* ── Navbar ── */
+.navbar{
+  position:fixed;top:0;left:0;right:0;height:var(--navbar-h);z-index:200;
+  background:linear-gradient(135deg,#1a365d 0%,#2B6CB0 60%,#3182CE 100%);
+  box-shadow:0 2px 10px rgba(26,54,93,0.3);
+  display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+}
+.nav-left{display:flex;align-items:center;gap:10px}
+.nav-back{
+  display:none;width:36px;height:36px;border-radius:var(--radius-sm);
+  border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);
+  color:#fff;font-size:1.2rem;align-items:center;justify-content:center;
+}
+.nav-back.visible{display:flex}
+.nav-logo{
+  width:36px;height:36px;border-radius:var(--radius-sm);
+  background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:0.7rem;color:#fff;border:1px solid rgba(255,255,255,0.2);
+}
+.nav-title-wrap{display:flex;flex-direction:column}
+.nav-title{font-weight:700;font-size:0.9rem;color:#fff;white-space:nowrap}
+.nav-subtitle{font-size:0.65rem;color:rgba(255,255,255,0.7);margin-top:1px}
+.nav-actions{display:flex;gap:6px;align-items:center}
+.btn-nav{
+  display:inline-flex;align-items:center;gap:4px;padding:6px 12px;
+  border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.1);color:#fff;font-size:0.78rem;font-weight:500;
+  transition:all var(--transition);white-space:nowrap;
+}
+.btn-nav:hover{background:rgba(255,255,255,0.2)}
+.btn-nav-accent{background:rgba(255,255,255,0.9);color:var(--accent-blue);font-weight:600;border-color:transparent}
+.btn-nav-accent:hover{background:#fff}
+
+/* ── Main Container ── */
+.main{margin-top:var(--navbar-h);padding:16px;max-width:1200px;margin-left:auto;margin-right:auto}
+
+/* ── Views ── */
+.view{display:none}
+.view.active{display:block}
+
+/* ── Stats Strip ── */
+.stats-strip{
+  display:flex;gap:10px;margin-bottom:16px;overflow-x:auto;
+  padding-bottom:4px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+}
+.stat-card{
+  flex:0 0 auto;min-width:120px;padding:12px 16px;
+  background:var(--bg-card);border-radius:var(--radius-md);
+  box-shadow:var(--shadow-sm);scroll-snap-align:start;
+  border-left:3px solid var(--accent-blue);
+}
+.stat-card .stat-value{font-size:1.4rem;font-weight:700;color:var(--accent-blue)}
+.stat-card .stat-label{font-size:0.72rem;color:var(--text-muted);margin-top:2px}
+.stat-card:nth-child(2){border-left-color:var(--accent-green)}
+.stat-card:nth-child(2) .stat-value{color:var(--accent-green)}
+.stat-card:nth-child(3){border-left-color:var(--accent-amber)}
+.stat-card:nth-child(3) .stat-value{color:var(--accent-amber)}
+.stat-card:nth-child(4){border-left-color:var(--accent-red)}
+.stat-card:nth-child(4) .stat-value{color:var(--accent-red)}
+
+/* ── Category Section ── */
+.category-section{margin-bottom:16px}
+.category-section.cat-dragging{opacity:0.35;box-shadow:none}
+.category-section.cat-drag-over{box-shadow:0 -4px 0 0 var(--accent-blue)}
+.category-section.cat-touch-dragging{
+  opacity:0.9;box-shadow:var(--shadow-lg);z-index:70;transform:scale(1.01);
+  border-radius:var(--radius-md);
+}
+.category-section.cat-touch-drag-over{box-shadow:0 -4px 0 0 var(--accent-blue)}
+.category-header{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;
+  background:linear-gradient(135deg,#2B6CB0,#3182CE);
+  border-radius:var(--radius-md) var(--radius-md) 0 0;
+  color:#fff;cursor:pointer;user-select:none;
+}
+.cat-drag-handle{
+  display:flex;align-items:center;justify-content:center;
+  width:20px;flex-shrink:0;color:rgba(255,255,255,0.5);
+  cursor:grab;touch-action:none;transition:color var(--transition);
+}
+.cat-drag-handle:hover{color:rgba(255,255,255,0.9)}
+.cat-drag-handle svg{pointer-events:none}
+.category-header .cat-icon{font-size:1rem;transition:transform var(--transition)}
+.category-header.collapsed .cat-icon{transform:rotate(-90deg)}
+.category-header .cat-name{font-weight:600;font-size:0.88rem;flex:1}
+.category-header .cat-count{
+  font-size:0.72rem;background:rgba(255,255,255,0.2);
+  padding:2px 8px;border-radius:10px;
+}
+.cat-actions{display:flex;gap:4px}
+.cat-actions button{
+  width:28px;height:28px;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.1);color:#fff;font-size:0.8rem;display:flex;
+  align-items:center;justify-content:center;
+}
+.cat-actions button:hover{background:rgba(255,255,255,0.25)}
+.category-body{
+  background:var(--bg-card);border-radius:0 0 var(--radius-md) var(--radius-md);
+  box-shadow:var(--shadow-sm);overflow:hidden;
+}
+.category-header.collapsed+.category-body{display:none}
+.cat-add-task{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  padding:10px 14px;font-size:0.8rem;font-weight:500;
+  color:var(--accent-blue);cursor:pointer;border:none;background:transparent;
+  width:100%;border-top:1px dashed var(--border-light);
+  transition:background var(--transition);
+}
+.cat-add-task:hover{background:var(--accent-blue-soft)}
+
+/* ── Task Row ── */
+.task-row{
+  display:flex;align-items:center;padding:10px 14px;
+  border-bottom:1px solid var(--border-light);cursor:pointer;
+  transition:background var(--transition);gap:10px;
+}
+.task-row:hover{background:var(--bg-hover)}
+.task-row:last-child{border-bottom:none}
+.task-row .task-name{flex:1;font-weight:500;font-size:0.85rem;min-width:0}
+.task-row .task-name span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-row .task-meta{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.task-badge{
+  font-size:0.68rem;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap;
+}
+.badge-timing{background:var(--accent-blue-soft);color:var(--accent-blue)}
+.badge-steps{background:var(--accent-green-soft);color:var(--accent-green)}
+.badge-owner{background:var(--accent-amber-soft);color:var(--accent-amber)}
+.task-row-actions{display:flex;gap:2px;flex-shrink:0}
+.task-row-actions button{
+  width:28px;height:28px;border:none;background:transparent;
+  border-radius:var(--radius-sm);color:var(--text-muted);font-size:0.85rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.task-row-actions button:hover{background:var(--bg-secondary);color:var(--text-primary)}
+
+/* ── Drag Handle ── */
+.drag-handle{
+  display:flex;align-items:center;justify-content:center;
+  width:24px;flex-shrink:0;color:var(--text-muted);opacity:0.35;
+  cursor:grab;touch-action:none;transition:opacity var(--transition);
+}
+.drag-handle:hover{opacity:0.7}
+.drag-handle svg{pointer-events:none}
+
+/* ── Desktop Drag States ── */
+.task-row[draggable="true"]{cursor:grab}
+.task-row.dragging{opacity:0.35;background:var(--accent-blue-soft)}
+.task-row.drag-over{box-shadow:0 -3px 0 0 var(--accent-blue) inset}
+
+/* ── Touch Drag States ── */
+.task-row.touch-dragging{
+  opacity:0.9;box-shadow:var(--shadow-lg);z-index:70;
+  transform:scale(1.02);background:var(--bg-card);
+  border-radius:var(--radius-sm);
+}
+.task-row.touch-drag-over{box-shadow:0 -3px 0 0 var(--accent-blue) inset}
+
+/* ── Detail View ── */
+.detail-header{
+  background:var(--bg-card);border-radius:var(--radius-md);
+  padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm);
+}
+.detail-title{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.detail-category{font-size:0.78rem;color:var(--text-muted);margin-bottom:12px}
+.detail-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.detail-info-item{display:flex;flex-direction:column;gap:2px}
+.detail-info-item .label{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px}
+.detail-info-item .value{font-size:0.85rem;font-weight:500}
+.detail-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:5px;padding:8px 16px;
+  border-radius:var(--radius-sm);font-size:0.8rem;font-weight:500;border:none;
+  transition:all var(--transition);
+}
+.btn-primary{background:var(--accent-blue);color:#fff}
+.btn-primary:hover{background:var(--accent-blue-light)}
+.btn-secondary{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color)}
+.btn-secondary:hover{background:var(--border-light)}
+.btn-danger{background:var(--accent-red-soft);color:var(--accent-red);border:1px solid rgba(197,48,48,0.2)}
+.btn-danger:hover{background:rgba(197,48,48,0.15)}
+.btn-sm{padding:5px 10px;font-size:0.75rem}
+
+/* ── Workflow Timeline ── */
+.workflow-section{
+  background:var(--bg-card);border-radius:var(--radius-md);
+  padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px;
+}
+.workflow-section-title{
+  font-size:0.85rem;font-weight:700;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.workflow-timeline{position:relative;padding-left:28px}
+.workflow-timeline::before{
+  content:'';position:absolute;left:11px;top:0;bottom:0;width:2px;
+  background:var(--border-color);
+}
+.wf-node{
+  position:relative;padding:12px 14px;margin-bottom:12px;
+  background:var(--bg-primary);border-radius:var(--radius-md);
+  border:1px solid var(--border-light);
+  transition:all var(--transition);
+}
+.wf-node:hover{border-color:var(--accent-blue);box-shadow:var(--shadow-sm)}
+.wf-node::before{
+  content:'';position:absolute;left:-21px;top:16px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--accent-blue);border:2px solid var(--bg-card);
+  z-index:1;
+}
+.wf-node.completed::before{background:var(--accent-green)}
+.wf-node.overdue::before{background:var(--accent-red)}
+.wf-node.in-progress::before{background:var(--accent-amber)}
+.wf-node-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.wf-node-title{font-weight:600;font-size:0.85rem;flex:1}
+.wf-node-status{font-size:0.68rem;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap}
+.status-not-started{background:var(--bg-secondary);color:var(--text-muted)}
+.status-in-progress{background:var(--accent-amber-soft);color:var(--accent-amber)}
+.status-completed{background:var(--accent-green-soft);color:var(--accent-green)}
+.status-overdue{background:var(--accent-red-soft);color:var(--accent-red)}
+.wf-node-body{display:flex;flex-wrap:wrap;gap:8px;font-size:0.78rem;color:var(--text-secondary)}
+.wf-node-body .wf-label{color:var(--text-muted);font-size:0.7rem}
+.wf-person{
+  display:inline-flex;align-items:center;gap:3px;padding:2px 8px;
+  background:var(--accent-blue-soft);border-radius:10px;font-size:0.72rem;
+  color:var(--accent-blue);font-weight:500;
+}
+.wf-person.approver{background:var(--accent-amber-soft);color:var(--accent-amber)}
+.wf-date{font-size:0.75rem;color:var(--text-muted)}
+.wf-node-actions{display:flex;gap:4px;margin-top:8px}
+.wf-memo{
+  margin-top:6px;padding:6px 10px;background:rgba(43,108,176,0.04);
+  border-radius:var(--radius-sm);font-size:0.78rem;color:var(--text-secondary);
+  border-left:2px solid var(--accent-blue);
+}
+
+/* ── Modal ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(2px);
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--bg-card);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);width:90%;max-width:560px;
+  max-height:90vh;max-height:90dvh;display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.modal-header{
+  padding:16px 20px;border-bottom:1px solid var(--border-light);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.modal-header h3{font-size:0.95rem;font-weight:700}
+.modal-close{
+  width:32px;height:32px;border-radius:var(--radius-sm);border:none;
+  background:var(--bg-secondary);color:var(--text-secondary);font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.modal-footer{
+  padding:12px 20px;border-top:1px solid var(--border-light);
+  display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;
+}
+
+/* ── Form Fields ── */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:0.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:8px 12px;border:1px solid var(--border-color);
+  border-radius:var(--radius-sm);font-size:0.85rem;background:var(--bg-card);
+  transition:border-color var(--transition);
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  outline:none;border-color:var(--accent-blue);box-shadow:0 0 0 3px var(--accent-blue-soft);
+}
+.form-group textarea{resize:vertical;min-height:60px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── Color Picker ── */
+.color-picker{display:flex;gap:6px;flex-wrap:wrap;padding-top:4px}
+.color-swatch{
+  width:28px;height:28px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:all var(--transition);
+  display:flex;align-items:center;justify-content:center;
+}
+.color-swatch:hover{transform:scale(1.15)}
+.color-swatch.selected{border-color:var(--text-primary);box-shadow:0 0 0 2px var(--bg-card),0 0 0 4px var(--text-primary)}
+.color-swatch.c-black{background:#1A202C}
+.color-swatch.c-red{background:#C53030}
+.color-swatch.c-blue{background:#2B6CB0}
+.color-swatch.c-orange{background:#C05621}
+.color-swatch.c-yellow{background:#B7791F}
+.color-swatch.c-brown{background:#7B341E}
+.color-swatch.c-green{background:#276749}
+
+/* ── FAB ── */
+.fab{
+  position:fixed;bottom:24px;right:24px;width:52px;height:52px;
+  border-radius:50%;background:var(--accent-blue);color:#fff;
+  border:none;box-shadow:var(--shadow-md);font-size:1.4rem;z-index:150;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--transition);
+}
+.fab:hover{transform:scale(1.08);box-shadow:var(--shadow-lg)}
+.fab:active{transform:scale(0.95)}
+
+/* ── Empty State ── */
+.empty-state{
+  text-align:center;padding:40px 20px;color:var(--text-muted);
+}
+.empty-state .empty-icon{font-size:2.5rem;margin-bottom:10px;opacity:0.4}
+.empty-state p{font-size:0.85rem}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .navbar{padding:0 10px}
+  .nav-title{font-size:0.82rem}
+  .main{padding:10px}
+  .stat-card{min-width:100px;padding:10px 12px}
+  .stat-card .stat-value{font-size:1.1rem}
+  .detail-info{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .drag-handle{width:28px;opacity:0.4}
+  .task-row .task-meta{flex-direction:column;align-items:flex-end;gap:3px}
+  .modal{width:100%;max-width:100%;max-height:100dvh;border-radius:0;height:100dvh}
+  .modal-header{position:sticky;top:0;background:var(--bg-card);z-index:1}
+  .modal-footer{position:sticky;bottom:0;background:var(--bg-card);z-index:1;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .fab{bottom:calc(16px + env(safe-area-inset-bottom));right:16px}
+  .wf-node-header{flex-direction:column}
+  .hide-mobile{display:none !important}
+}
+@media(min-width:769px){
+  .hide-desktop{display:none !important}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <div class="nav-left">
+    <button class="nav-back" id="btnBack" aria-label="戻る">&#9664;</button>
+    <div class="nav-logo">ICTS</div>
+    <div class="nav-title-wrap">
+      <div class="nav-title" id="navTitle">引継ぎ業務フロー管理</div>
+      <div class="nav-subtitle">ICTS 事業企画・管理室</div>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-nav" id="btnSync" title="PC→スマホ同期">&#128241; 同期</button>
+    <button class="btn-nav" id="btnExport" title="エクスポート">&#128190; 保存</button>
+    <button class="btn-nav" id="btnImport" title="インポート">&#128194; 読込</button>
+    <input type="file" id="fileImport" accept=".json" style="display:none">
+  </div>
+</nav>
+
+<!-- ── List View ── -->
+<div class="main">
+  <div class="view active" id="viewList">
+    <div class="stats-strip" id="statsStrip"></div>
+    <div id="categoryList"></div>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <div class="empty-icon">&#128203;</div>
+      <p>業務がまだ登録されていません<br>右下の＋ボタンから追加してください</p>
+    </div>
+  </div>
+
+  <!-- ── Detail View ── -->
+  <div class="view" id="viewDetail">
+    <div class="detail-header" id="detailHeader"></div>
+    <div class="workflow-section">
+      <div class="workflow-section-title">
+        <span>&#9889; 業務フロー・タイムライン</span>
+        <button class="btn btn-primary btn-sm" id="btnAddStep">＋ ステップ追加</button>
+      </div>
+      <div class="workflow-timeline" id="workflowTimeline"></div>
+      <div class="empty-state" id="emptyWorkflow" style="display:none">
+        <div class="empty-icon">&#128260;</div>
+        <p>フローステップがまだありません<br>上の「ステップ追加」から業務フローを定義してください</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab" title="新規追加">&#65291;</button>
+
+<!-- ── Task Modal ── -->
+<div class="modal-overlay" id="modalTask">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTaskTitle">業務を追加</h3>
+      <button class="modal-close" id="closeTaskModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>カテゴリー（大項目）</label>
+        <select id="fldCategory"></select>
+      </div>
+      <div class="form-group">
+        <label>業務名 / 書類名</label>
+        <input type="text" id="fldName" placeholder="例: 産業廃棄物管理票交付等状況報告書">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>実施時期</label>
+          <input type="text" id="fldTiming" placeholder="例: 4月頃、毎月10日">
+        </div>
+        <div class="form-group">
+          <label>提出先</label>
+          <input type="text" id="fldDest" placeholder="例: 安全衛生環境室">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>主担当者</label>
+          <input type="text" id="fldOwner" placeholder="例: 上野">
+        </div>
+        <div class="form-group">
+          <label>期限</label>
+          <input type="date" id="fldDeadline">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>内容・備考</label>
+        <textarea id="fldMemo" placeholder="業務の詳細説明"></textarea>
+      </div>
+      <div class="form-group">
+        <label>フォントカラー</label>
+        <div class="color-picker" id="taskColorPicker">
+          <div class="color-swatch c-black selected" data-color="black"></div>
+          <div class="color-swatch c-red" data-color="red"></div>
+          <div class="color-swatch c-blue" data-color="blue"></div>
+          <div class="color-swatch c-orange" data-color="orange"></div>
+          <div class="color-swatch c-yellow" data-color="yellow"></div>
+          <div class="color-swatch c-brown" data-color="brown"></div>
+          <div class="color-swatch c-green" data-color="green"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelTask">キャンセル</button>
+      <button class="btn btn-primary" id="saveTask">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Category Modal ── -->
+<div class="modal-overlay" id="modalCategory">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalCatTitle">カテゴリーを追加</h3>
+      <button class="modal-close" id="closeCatModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>カテゴリー名</label>
+        <input type="text" id="fldCatName" placeholder="例: 環境管理">
+      </div>
+      <div class="form-group">
+        <label>カテゴリー内フォントカラー（全業務に適用）</label>
+        <div class="color-picker" id="catColorPicker">
+          <div class="color-swatch c-black selected" data-color="black"></div>
+          <div class="color-swatch c-red" data-color="red"></div>
+          <div class="color-swatch c-blue" data-color="blue"></div>
+          <div class="color-swatch c-orange" data-color="orange"></div>
+          <div class="color-swatch c-yellow" data-color="yellow"></div>
+          <div class="color-swatch c-brown" data-color="brown"></div>
+          <div class="color-swatch c-green" data-color="green"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelCat">キャンセル</button>
+      <button class="btn btn-primary" id="saveCat">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Step Modal ── -->
+<div class="modal-overlay" id="modalStep">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalStepTitle">フローステップを追加</h3>
+      <button class="modal-close" id="closeStepModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>ステップ名</label>
+        <input type="text" id="fldStepName" placeholder="例: 資料作成、提出、承認">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>担当者</label>
+          <input type="text" id="fldStepOwner" placeholder="例: 川原">
+        </div>
+        <div class="form-group">
+          <label>承認者</label>
+          <input type="text" id="fldStepApprover" placeholder="例: 上野">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>開始日</label>
+          <input type="date" id="fldStepStart">
+        </div>
+        <div class="form-group">
+          <label>期限</label>
+          <input type="date" id="fldStepEnd">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>ステータス</label>
+        <select id="fldStepStatus">
+          <option value="not-started">未着手</option>
+          <option value="in-progress">進行中</option>
+          <option value="completed">完了</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>メモ</label>
+        <textarea id="fldStepMemo" placeholder="補足事項"></textarea>
+      </div>
+      <div class="form-group">
+        <label>フォントカラー</label>
+        <div class="color-picker" id="stepColorPicker">
+          <div class="color-swatch c-black selected" data-color="black"></div>
+          <div class="color-swatch c-red" data-color="red"></div>
+          <div class="color-swatch c-blue" data-color="blue"></div>
+          <div class="color-swatch c-orange" data-color="orange"></div>
+          <div class="color-swatch c-yellow" data-color="yellow"></div>
+          <div class="color-swatch c-brown" data-color="brown"></div>
+          <div class="color-swatch c-green" data-color="green"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelStep">キャンセル</button>
+      <button class="btn btn-primary" id="saveStep">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Confirm Dialog ── -->
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header"><h3>確認</h3><button class="modal-close" id="closeConfirm">&times;</button></div>
+    <div class="modal-body"><p id="confirmMsg"></p></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="confirmNo">キャンセル</button>
+      <button class="btn btn-danger" id="confirmYes">削除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ── Tap Utility (iOS Safari compatible) ── */
+var _tapLock = false;
+function onTap(el, fn) {
+  if (!el) return;
+  el.addEventListener('touchend', function(e) {
+    if (_tapLock) return;
+    _tapLock = true;
+    setTimeout(function(){ _tapLock = false; }, 300);
+    e.preventDefault();
+    fn(e);
+  }, {passive: false});
+  el.addEventListener('click', function(e) {
+    if (_tapLock) return;
+    fn(e);
+  });
+}
+function onTapDelegate(container, selector, fn) {
+  if (!container) return;
+  function handler(e) {
+    var t = e.target.closest(selector);
+    if (t && container.contains(t)) {
+      if (e.type === 'touchend') {
+        if (_tapLock) return;
+        _tapLock = true;
+        setTimeout(function(){ _tapLock = false; }, 300);
+        e.preventDefault();
+      } else if (_tapLock) return;
+      fn(t, e);
+    }
+  }
+  container.addEventListener('touchend', handler, {passive: false});
+  container.addEventListener('click', handler);
+}
+
+/* ── Constants ── */
+var GRIP_SVG = '<svg width="10" height="16" fill="currentColor" viewBox="0 0 10 16"><circle cx="3" cy="2" r="1.2"/><circle cx="7" cy="2" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="3" cy="14" r="1.2"/><circle cx="7" cy="14" r="1.2"/></svg>';
+var GRIP_SVG_WHITE = '<svg width="10" height="16" fill="currentColor" viewBox="0 0 10 16"><circle cx="3" cy="2" r="1.2"/><circle cx="7" cy="2" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="3" cy="14" r="1.2"/><circle cx="7" cy="14" r="1.2"/></svg>';
+var LS_KEY = 'icts-handover-workflow-v1';
+var IS_REMOTE = location.protocol === 'https:';
+var COLOR_MAP = {
+  black: 'var(--color-black)',
+  red: 'var(--color-red)',
+  blue: 'var(--color-blue)',
+  orange: 'var(--color-orange)',
+  yellow: 'var(--color-yellow)',
+  brown: 'var(--color-brown)',
+  green: 'var(--color-green)'
+};
+var STATUS_LABELS = {
+  'not-started': '未着手',
+  'in-progress': '進行中',
+  'completed': '完了',
+  'overdue': '期限超過'
+};
+
+/* ── State ── */
+var D = { categories: [], tasks: [] };
+var currentView = 'list';
+var currentTaskId = null;
+var editingTaskId = null;
+var editingStepId = null;
+var editingCatId = null;
+var confirmCallback = null;
+
+/* ── DOM Refs ── */
+var $viewList = document.getElementById('viewList');
+var $viewDetail = document.getElementById('viewDetail');
+var $categoryList = document.getElementById('categoryList');
+var $statsStrip = document.getElementById('statsStrip');
+var $emptyState = document.getElementById('emptyState');
+var $detailHeader = document.getElementById('detailHeader');
+var $workflowTimeline = document.getElementById('workflowTimeline');
+var $emptyWorkflow = document.getElementById('emptyWorkflow');
+var $navTitle = document.getElementById('navTitle');
+var $btnBack = document.getElementById('btnBack');
+var $fab = document.getElementById('fab');
+
+/* ── Persistence ── */
+function save() {
+  if (IS_REMOTE) return;
+  try { localStorage.setItem(LS_KEY, JSON.stringify(D)); } catch(e) {}
+}
+function load() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      // Migrate: add color to categories if missing
+      var cats = (parsed.categories || []).map(function(c) {
+        if (!c.color) return Object.assign({}, c, { color: 'black' });
+        return c;
+      });
+      D = {
+        categories: cats,
+        tasks: parsed.tasks || []
+      };
+    } else {
+      loadDefaultData();
+    }
+  } catch(e) { loadDefaultData(); }
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function today() { return new Date().toISOString().slice(0, 10); }
+
+function getStepStatus(step) {
+  if (step.status === 'completed') return 'completed';
+  if (step.status === 'in-progress') {
+    if (step.end && step.end < today()) return 'overdue';
+    return 'in-progress';
+  }
+  if (step.end && step.end < today()) return 'overdue';
+  return 'not-started';
+}
+
+/* ── Default Data ── */
+function loadDefaultData() {
+  D.categories = [
+    { id: uid(), name: '産廃・環境管理', collapsed: false, color: 'black' },
+    { id: uid(), name: '法規制・法定点検', collapsed: false, color: 'black' },
+    { id: uid(), name: '安全衛生', collapsed: false, color: 'black' },
+    { id: uid(), name: '消防・防火', collapsed: false, color: 'black' },
+    { id: uid(), name: '人事・雇用契約', collapsed: false, color: 'black' },
+    { id: uid(), name: 'ISO審査対応', collapsed: false, color: 'black' },
+    { id: uid(), name: '設備予算・伺い書', collapsed: false, color: 'black' },
+    { id: uid(), name: '毎月定例業務', collapsed: false, color: 'black' },
+    { id: uid(), name: 'その他', collapsed: false, color: 'black' }
+  ];
+  var c = D.categories;
+  D.tasks = [
+    { id: uid(), categoryId: c[0].id, name: '産業廃棄物管理票交付等状況報告書', timing: '4月頃', dest: '宗像・遠賀保健福祉環境事務所', owner: '', deadline: '', memo: '愛和環境管理に出した産廃をリスト化して提出(4-6月)', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '省エネ施策実績・計画の提出', timing: '5月頃', dest: 'DX推進室(総務)', owner: '', deadline: '', memo: 'ハード対策・ソフト対策をまとめ九州経済産業局に提出', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '化学物質リスクアセスメント', timing: '7月頃', dest: '安全衛生環境室', owner: '', deadline: '', memo: 'CREATE-SIMPLEを用いてリスクアセス実施', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '浄化槽維持管理状況報告書', timing: '4月頃', dest: '宗像・遠賀保健福祉環境事務所', owner: '', deadline: '', memo: '砂山営農から提出', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '電気設備点検', timing: '5月', dest: '九州電気保安協会', owner: '竹森', deadline: '', memo: '高圧受電設備精密点検(1回/年)', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '消防設備点検', timing: '8月・1月', dest: 'ホーチキ→消防署', owner: '', deadline: '', memo: '2回/年実施。1回/3年消防署に結果提出', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '36協定の提出', timing: '3月', dest: '労基署(本社人事経由)', owner: '', deadline: '', memo: '終業時間・休日・人員等を記載し提出', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: '全国安全週間準備月間', timing: '6月', dest: '安全衛生環境室', owner: '', deadline: '', memo: '安全標語・安全ポスターの提出', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: '健康診断リスト送付', timing: '2月', dest: '西日本産業衛生会', owner: '', deadline: '', memo: '検査内容+オプション記載し送付', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[3].id, name: '防火管理者届出', timing: '随時', dest: '消防署', owner: '松本', deadline: '', memo: '仮選任届出書作成済み(提出未完)', color: 'red', steps: [] },
+    { id: uid(), categoryId: c[3].id, name: '消防設備自主点検', timing: '毎月', dest: '記録保管', owner: '川原', deadline: '', memo: '1回/月で実施', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[4].id, name: '雇用契約書(契約社員)', timing: '9月・3月', dest: '人事室', owner: '', deadline: '', memo: '千々和・隈部・広田の雇用延長', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: 'ISO審査(9001・14001)', timing: '10月', dest: '', owner: '', deadline: '', memo: '事前に資料整理が必要', color: 'blue', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: '環境目標の更新', timing: '毎月', dest: 'ISO14001', owner: '', deadline: '', memo: '電力使用量維持で計画書作成済み', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[6].id, name: '設備予算申請', timing: '1月・7月', dest: '技術企画室', owner: '', deadline: '', memo: '上期:1月→4月令達。下期:7月→10月令達', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[7].id, name: '電子請求書の送付・押印', timing: '毎月1日', dest: '業務企画Gr', owner: '', deadline: '', memo: 'ヤマト・Amazon等の電子請求書を転送', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[7].id, name: '改善提案月報', timing: '毎月10日', dest: '技術企画室', owner: '小嶺', deadline: '', memo: '製造室集計→確認・追記→本社入力', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: 'AED管理', timing: '随時', dest: '', owner: '', deadline: '2026-11-18', memo: '11/18に買い替え必要。ミドリ安全に依頼', color: 'orange', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '献血対応', timing: '5月', dest: '赤十字', owner: '', deadline: '2026-05-07', memo: '5/7実施。第1会議室を受付会場', color: 'black', steps: [] },
+  ];
+  save();
+}
+
+/* ── Render: Stats ── */
+function renderStats() {
+  var total = D.tasks.length;
+  var withSteps = D.tasks.filter(function(t){ return t.steps && t.steps.length > 0; }).length;
+  var withDeadline = D.tasks.filter(function(t){ return t.deadline; }).length;
+  var overdue = D.tasks.filter(function(t){ return t.deadline && t.deadline < today(); }).length;
+  $statsStrip.innerHTML =
+    '<div class="stat-card"><div class="stat-value">' + total + '</div><div class="stat-label">全業務数</div></div>' +
+    '<div class="stat-card"><div class="stat-value">' + withSteps + '</div><div class="stat-label">フロー定義済</div></div>' +
+    '<div class="stat-card"><div class="stat-value">' + withDeadline + '</div><div class="stat-label">期限設定済</div></div>' +
+    '<div class="stat-card"><div class="stat-value">' + overdue + '</div><div class="stat-label">期限超過</div></div>';
+}
+
+/* ── Render: List View ── */
+function renderList() {
+  renderStats();
+  var html = '';
+  if (IS_REMOTE) {
+    html += '<div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 16px;margin-bottom:16px;text-align:center;font-size:0.85rem;color:#92400E">\uD83D\uDCF1 閲覧モード \u2014 PCで編集してください</div>';
+  }
+  var catSelect = '<option value="">-- カテゴリーを選択 --</option>';
+
+  D.categories.forEach(function(cat) {
+    var tasks = D.tasks.filter(function(t){ return t.categoryId === cat.id; });
+    catSelect += '<option value="' + cat.id + '">' + esc(cat.name) + '</option>';
+
+    var catColorDot = (cat.color && cat.color !== 'black') ? '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + COLOR_MAP[cat.color] + ';border:1px solid rgba(255,255,255,0.5);flex-shrink:0" title="フォントカラー"></span>' : '';
+    html += '<div class="category-section" draggable="true" data-cat-id="' + cat.id + '">';
+    html += '<div class="category-header' + (cat.collapsed ? ' collapsed' : '') + '" data-cat-id="' + cat.id + '">';
+    html += '<div class="cat-drag-handle" title="ドラッグで並べ替え">' + GRIP_SVG_WHITE + '</div>';
+    html += '<span class="cat-icon">&#9660;</span>';
+    html += '<span class="cat-name">' + esc(cat.name) + '</span>';
+    html += catColorDot;
+    html += '<span class="cat-count">' + tasks.length + '件</span>';
+    html += '<div class="cat-actions">';
+    html += '<button class="cat-edit" data-cat-id="' + cat.id + '" title="編集">&#9998;</button>';
+    html += '<button class="cat-delete" data-cat-id="' + cat.id + '" title="削除">&times;</button>';
+    html += '</div></div>';
+    html += '<div class="category-body">';
+
+    // Determine effective color: task's own color takes priority, then category color
+    var catColor = cat.color && cat.color !== 'black' ? cat.color : null;
+
+    if (tasks.length === 0) {
+      html += '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.8rem">この分類に業務はまだありません</div>';
+    } else {
+      tasks.forEach(function(task) {
+        // Task-level color overrides category color; category color is the fallback
+        var effectiveColor = (task.color && task.color !== 'black') ? task.color : catColor;
+        var colorStyle = effectiveColor ? ' style="color:' + COLOR_MAP[effectiveColor] + '"' : '';
+        html += '<div class="task-row" draggable="true" data-task-id="' + task.id + '" data-cat-id="' + cat.id + '">';
+        html += '<div class="drag-handle" title="ドラッグで並べ替え">' + GRIP_SVG + '</div>';
+        html += '<div class="task-name"><span' + colorStyle + '>' + esc(task.name) + '</span></div>';
+        html += '<div class="task-meta">';
+        if (task.timing) html += '<span class="task-badge badge-timing"' + colorStyle + '>' + esc(task.timing) + '</span>';
+        if (task.steps && task.steps.length > 0) html += '<span class="task-badge badge-steps">' + task.steps.length + 'ステップ</span>';
+        if (task.owner) html += '<span class="task-badge badge-owner"' + colorStyle + '>' + esc(task.owner) + '</span>';
+        html += '</div>';
+        html += '<div class="task-row-actions">';
+        html += '<button class="task-edit" data-task-id="' + task.id + '" title="編集">&#9998;</button>';
+        html += '<button class="task-delete" data-task-id="' + task.id + '" title="削除">&times;</button>';
+        html += '</div></div>';
+      });
+    }
+    // Per-category add-task button
+    html += '<button class="cat-add-task" data-cat-id="' + cat.id + '">&#65291; この分類に業務を追加</button>';
+    html += '</div></div>';
+  });
+
+  // Add category button at the bottom
+  html += '<div style="text-align:center;margin-top:12px">';
+  html += '<button class="btn btn-secondary" id="btnAddCategory">&#65291; カテゴリーを追加</button>';
+  html += '</div>';
+
+  $categoryList.innerHTML = html;
+  document.getElementById('fldCategory').innerHTML = catSelect;
+  $emptyState.style.display = D.categories.length === 0 && D.tasks.length === 0 ? 'block' : 'none';
+
+  // Bind events
+  onTapDelegate($categoryList, '.category-header', function(el, e) {
+    // Don't toggle collapse when clicking action buttons or drag handle
+    if (e.target.closest('.cat-actions')) return;
+    if (e.target.closest('.cat-drag-handle')) return;
+    var catId = el.getAttribute('data-cat-id');
+    var cat = D.categories.find(function(c){ return c.id === catId; });
+    if (cat) {
+      cat.collapsed = !cat.collapsed;
+      save();
+      renderList();
+    }
+  });
+
+  onTapDelegate($categoryList, '.task-row', function(el, e) {
+    if (e.target.closest('.task-row-actions')) return;
+    if (e.target.closest('.drag-handle')) return;
+    var taskId = el.getAttribute('data-task-id');
+    showDetail(taskId);
+  });
+
+  onTapDelegate($categoryList, '.task-edit', function(el, e) {
+    e.stopPropagation();
+    openTaskModal(el.getAttribute('data-task-id'));
+  });
+
+  onTapDelegate($categoryList, '.task-delete', function(el, e) {
+    e.stopPropagation();
+    var taskId = el.getAttribute('data-task-id');
+    showConfirm('この業務を削除しますか？', function() {
+      D.tasks = D.tasks.filter(function(t){ return t.id !== taskId; });
+      save();
+      renderList();
+    });
+  });
+
+  onTapDelegate($categoryList, '.cat-edit', function(el, e) {
+    e.stopPropagation();
+    openCatModal(el.getAttribute('data-cat-id'));
+  });
+
+  onTapDelegate($categoryList, '.cat-delete', function(el, e) {
+    e.stopPropagation();
+    var catId = el.getAttribute('data-cat-id');
+    var taskCount = D.tasks.filter(function(t){ return t.categoryId === catId; }).length;
+    showConfirm('このカテゴリー' + (taskCount > 0 ? '（' + taskCount + '件の業務含む）' : '') + 'を削除しますか？', function() {
+      D.categories = D.categories.filter(function(c){ return c.id !== catId; });
+      D.tasks = D.tasks.filter(function(t){ return t.categoryId !== catId; });
+      save();
+      renderList();
+    });
+  });
+
+  onTapDelegate($categoryList, '.cat-add-task', function(el, e) {
+    e.stopPropagation();
+    var catId = el.getAttribute('data-cat-id');
+    openTaskModalForCategory(catId);
+  });
+
+  var btnAddCat = document.getElementById('btnAddCategory');
+  if (btnAddCat) {
+    onTap(btnAddCat, function() { openCatModal(null); });
+  }
+
+}
+
+/* ── Render: Detail View ── */
+function renderDetail() {
+  var task = D.tasks.find(function(t){ return t.id === currentTaskId; });
+  if (!task) { showList(); return; }
+  var cat = D.categories.find(function(c){ return c.id === task.categoryId; });
+  var colorStyle = task.color && task.color !== 'black' ? ' style="color:' + COLOR_MAP[task.color] + '"' : '';
+
+  var html = '<div class="detail-title"' + colorStyle + '>' + esc(task.name) + '</div>';
+  html += '<div class="detail-category">' + (cat ? esc(cat.name) : '未分類') + '</div>';
+  html += '<div class="detail-info">';
+  if (task.timing) html += '<div class="detail-info-item"><span class="label">実施時期</span><span class="value">' + esc(task.timing) + '</span></div>';
+  if (task.dest) html += '<div class="detail-info-item"><span class="label">提出先</span><span class="value">' + esc(task.dest) + '</span></div>';
+  if (task.owner) html += '<div class="detail-info-item"><span class="label">主担当</span><span class="value">' + esc(task.owner) + '</span></div>';
+  if (task.deadline) html += '<div class="detail-info-item"><span class="label">期限</span><span class="value' + (task.deadline < today() ? '" style="color:var(--accent-red)' : '') + '">' + task.deadline + '</span></div>';
+  html += '</div>';
+  if (task.memo) html += '<div style="margin-top:12px;padding:10px;background:var(--bg-primary);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--text-secondary)">' + esc(task.memo) + '</div>';
+  html += '<div class="detail-actions">';
+  html += '<button class="btn btn-primary btn-sm" id="btnEditTask">&#9998; 編集</button>';
+  html += '<button class="btn btn-danger btn-sm" id="btnDeleteTask">&#128465; 削除</button>';
+  html += '</div>';
+  $detailHeader.innerHTML = html;
+
+  // Workflow
+  var steps = task.steps || [];
+  if (steps.length === 0) {
+    $workflowTimeline.innerHTML = '';
+    $emptyWorkflow.style.display = 'block';
+  } else {
+    $emptyWorkflow.style.display = 'none';
+    var wfHtml = '';
+    steps.forEach(function(step, idx) {
+      var st = getStepStatus(step);
+      var colorStyle = step.color && step.color !== 'black' ? ' style="color:' + COLOR_MAP[step.color] + '"' : '';
+      wfHtml += '<div class="wf-node ' + st + '" data-step-id="' + step.id + '">';
+      wfHtml += '<div class="wf-node-header">';
+      wfHtml += '<div class="wf-node-title"' + colorStyle + '><span style="color:var(--text-muted);font-size:0.7rem">Step ' + (idx + 1) + '</span><br>' + esc(step.name) + '</div>';
+      wfHtml += '<span class="wf-node-status status-' + st + '">' + STATUS_LABELS[st] + '</span>';
+      wfHtml += '</div>';
+      wfHtml += '<div class="wf-node-body">';
+      if (step.owner) wfHtml += '<div><span class="wf-label">担当:</span> <span class="wf-person">' + esc(step.owner) + '</span></div>';
+      if (step.approver) wfHtml += '<div><span class="wf-label">承認:</span> <span class="wf-person approver">' + esc(step.approver) + '</span></div>';
+      if (step.start || step.end) {
+        wfHtml += '<div class="wf-date">';
+        if (step.start) wfHtml += step.start;
+        if (step.start && step.end) wfHtml += ' → ';
+        if (step.end) wfHtml += step.end;
+        wfHtml += '</div>';
+      }
+      wfHtml += '</div>';
+      if (step.memo) wfHtml += '<div class="wf-memo">' + esc(step.memo) + '</div>';
+      wfHtml += '<div class="wf-node-actions">';
+      wfHtml += '<button class="btn btn-secondary btn-sm step-edit" data-step-id="' + step.id + '">&#9998; 編集</button>';
+      wfHtml += '<button class="btn btn-danger btn-sm step-delete" data-step-id="' + step.id + '">削除</button>';
+      if (idx > 0) wfHtml += '<button class="btn btn-secondary btn-sm step-up" data-step-id="' + step.id + '">&#9650;</button>';
+      if (idx < steps.length - 1) wfHtml += '<button class="btn btn-secondary btn-sm step-down" data-step-id="' + step.id + '">&#9660;</button>';
+      wfHtml += '</div></div>';
+    });
+    $workflowTimeline.innerHTML = wfHtml;
+  }
+
+  // Bind detail events
+  var btnEdit = document.getElementById('btnEditTask');
+  var btnDel = document.getElementById('btnDeleteTask');
+  if (btnEdit) onTap(btnEdit, function() { openTaskModal(currentTaskId); });
+  if (btnDel) onTap(btnDel, function() {
+    showConfirm('この業務を削除しますか？', function() {
+      D.tasks = D.tasks.filter(function(t){ return t.id !== currentTaskId; });
+      save();
+      showList();
+    });
+  });
+
+  onTapDelegate($workflowTimeline, '.step-edit', function(el) {
+    openStepModal(el.getAttribute('data-step-id'));
+  });
+  onTapDelegate($workflowTimeline, '.step-delete', function(el) {
+    var stepId = el.getAttribute('data-step-id');
+    showConfirm('このステップを削除しますか？', function() {
+      var task = D.tasks.find(function(t){ return t.id === currentTaskId; });
+      if (task) {
+        task.steps = task.steps.filter(function(s){ return s.id !== stepId; });
+        save();
+        renderDetail();
+      }
+    });
+  });
+  onTapDelegate($workflowTimeline, '.step-up', function(el) {
+    moveStep(el.getAttribute('data-step-id'), -1);
+  });
+  onTapDelegate($workflowTimeline, '.step-down', function(el) {
+    moveStep(el.getAttribute('data-step-id'), 1);
+  });
+}
+
+function moveStep(stepId, dir) {
+  var task = D.tasks.find(function(t){ return t.id === currentTaskId; });
+  if (!task) return;
+  var steps = task.steps.slice();
+  var idx = steps.findIndex(function(s){ return s.id === stepId; });
+  if (idx < 0) return;
+  var newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= steps.length) return;
+  var tmp = steps[idx];
+  steps[idx] = steps[newIdx];
+  steps[newIdx] = tmp;
+  task.steps = steps;
+  save();
+  renderDetail();
+}
+
+/* ── Reorder Tasks (same category) ── */
+function reorderTasks(fromId, toId) {
+  var fromTask = D.tasks.find(function(t){ return t.id === fromId; });
+  var toTask = D.tasks.find(function(t){ return t.id === toId; });
+  if (!fromTask || !toTask) return;
+  // Only allow reorder within the same category
+  if (fromTask.categoryId !== toTask.categoryId) return;
+  var catId = fromTask.categoryId;
+  // Separate tasks in this category from others
+  var catTasks = D.tasks.filter(function(t){ return t.categoryId === catId; });
+  var otherTasks = D.tasks.filter(function(t){ return t.categoryId !== catId; });
+  var fromIdx = catTasks.findIndex(function(t){ return t.id === fromId; });
+  var toIdx = catTasks.findIndex(function(t){ return t.id === toId; });
+  if (fromIdx < 0 || toIdx < 0) return;
+  var moved = catTasks[fromIdx];
+  var updated = catTasks.filter(function(_, i){ return i !== fromIdx; });
+  updated.splice(toIdx, 0, moved);
+  // Rebuild D.tasks preserving order of other categories
+  var result = [];
+  var catInserted = {};
+  D.tasks.forEach(function(t) {
+    if (t.categoryId === catId) {
+      if (!catInserted[catId]) {
+        catInserted[catId] = true;
+        result = result.concat(updated);
+      }
+    } else {
+      result.push(t);
+    }
+  });
+  D.tasks = result;
+  save();
+  renderList();
+}
+
+/* ── Desktop Drag & Drop ── */
+var dragSrcId = null;
+var taskDragFromHandle = false;
+function bindDesktopDragDrop(container) {
+  // Record click origin for handle-only drag (same mousedown pattern as categories)
+  container.addEventListener('mousedown', function(e) {
+    taskDragFromHandle = !!e.target.closest('.drag-handle');
+  });
+  container.addEventListener('dragstart', function(e) {
+    var row = e.target.closest('.task-row[data-task-id]');
+    if (!row) return;
+    // Only allow drag from the grip handle
+    if (!taskDragFromHandle) { e.preventDefault(); return; }
+    e.stopPropagation();
+    dragSrcId = row.getAttribute('data-task-id');
+    row.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragSrcId);
+  });
+  container.addEventListener('dragend', function(e) {
+    var row = e.target.closest('.task-row[data-task-id]');
+    if (row) row.classList.remove('dragging');
+    container.querySelectorAll('.drag-over').forEach(function(el){ el.classList.remove('drag-over'); });
+    dragSrcId = null;
+  });
+  container.addEventListener('dragover', function(e) {
+    if (!dragSrcId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    var target = e.target.closest('.task-row[data-task-id]');
+    if (!target || target.getAttribute('data-task-id') === dragSrcId) return;
+    // Only allow within same category
+    var srcRow = container.querySelector('.task-row[data-task-id="' + dragSrcId + '"]');
+    if (srcRow && srcRow.getAttribute('data-cat-id') !== target.getAttribute('data-cat-id')) return;
+    container.querySelectorAll('.drag-over').forEach(function(el){ el.classList.remove('drag-over'); });
+    target.classList.add('drag-over');
+  });
+  container.addEventListener('dragleave', function(e) {
+    var target = e.target.closest('.task-row[data-task-id]');
+    if (target) target.classList.remove('drag-over');
+  });
+  container.addEventListener('drop', function(e) {
+    if (!dragSrcId) return;
+    e.preventDefault();
+    container.querySelectorAll('.drag-over').forEach(function(el){ el.classList.remove('drag-over'); });
+    var target = e.target.closest('.task-row[data-task-id]');
+    if (!target || target.getAttribute('data-task-id') === dragSrcId) return;
+    reorderTasks(dragSrcId, target.getAttribute('data-task-id'));
+  });
+}
+
+/* ── Touch Drag & Drop (mobile) ── */
+function bindTouchDragDrop(container) {
+  var dragging = null, placeholder = null, startY = 0, scrollInterval = null, dragCatId = null;
+  container.addEventListener('touchstart', function(e) {
+    var handle = e.target.closest('.drag-handle');
+    if (!handle) return;
+    var row = handle.closest('.task-row[data-task-id]');
+    if (!row) return;
+    dragging = row;
+    dragCatId = row.getAttribute('data-cat-id');
+    startY = e.touches[0].clientY;
+    row.classList.add('touch-dragging');
+    placeholder = document.createElement('div');
+    placeholder.style.height = row.offsetHeight + 'px';
+    placeholder.style.borderBottom = '1px solid var(--border-light)';
+    row.parentNode.insertBefore(placeholder, row);
+    row.style.position = 'fixed';
+    row.style.zIndex = '70';
+    row.style.left = row.getBoundingClientRect().left + 'px';
+    row.style.width = row.offsetWidth + 'px';
+    row.style.top = row.getBoundingClientRect().top + 'px';
+  }, {passive: true});
+
+  container.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    var y = e.touches[0].clientY;
+    dragging.style.top = (y - 30) + 'px';
+    // Auto-scroll
+    clearInterval(scrollInterval);
+    if (y < 80) { scrollInterval = setInterval(function(){ window.scrollBy(0, -8); }, 16); }
+    else if (y > window.innerHeight - 80) { scrollInterval = setInterval(function(){ window.scrollBy(0, 8); }, 16); }
+    // Find drop target (same category only)
+    container.querySelectorAll('.task-row:not(.touch-dragging)').forEach(function(r) {
+      if (r.getAttribute('data-cat-id') !== dragCatId) { r.classList.remove('touch-drag-over'); return; }
+      var rect = r.getBoundingClientRect();
+      r.classList.toggle('touch-drag-over', y > rect.top && y < rect.bottom);
+    });
+  }, {passive: false});
+
+  container.addEventListener('touchend', function() {
+    if (!dragging) return;
+    clearInterval(scrollInterval);
+    var target = container.querySelector('.task-row.touch-drag-over');
+    dragging.classList.remove('touch-dragging');
+    dragging.style.cssText = '';
+    if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+    container.querySelectorAll('.touch-drag-over').forEach(function(el){ el.classList.remove('touch-drag-over'); });
+    if (target && target.getAttribute('data-task-id') !== dragging.getAttribute('data-task-id')) {
+      reorderTasks(dragging.getAttribute('data-task-id'), target.getAttribute('data-task-id'));
+    }
+    dragging = null; placeholder = null; dragCatId = null;
+  });
+}
+
+/* ── Reorder Categories ── */
+function reorderCategories(fromId, toId) {
+  var fromIdx = D.categories.findIndex(function(c){ return c.id === fromId; });
+  var toIdx = D.categories.findIndex(function(c){ return c.id === toId; });
+  if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return;
+  var moved = D.categories[fromIdx];
+  var updated = D.categories.filter(function(_, i){ return i !== fromIdx; });
+  updated.splice(toIdx, 0, moved);
+  D.categories = updated;
+  save();
+  renderList();
+}
+
+/* ── Desktop Drag & Drop (Categories) ── */
+var catDragSrcId = null;
+var catDragFromHandle = false;
+function bindCatDesktopDragDrop(container) {
+  // Record click origin — dragstart e.target is always the draggable element,
+  // not the child that was clicked, so we capture it in mousedown.
+  container.addEventListener('mousedown', function(e) {
+    catDragFromHandle = !!e.target.closest('.cat-drag-handle');
+  });
+  container.addEventListener('dragstart', function(e) {
+    // Skip if this is a task-row drag
+    if (e.target.closest('.task-row')) return;
+    var section = e.target.closest('.category-section[data-cat-id]');
+    if (!section) return;
+    // Only start category drag from the drag handle (checked via mousedown record)
+    if (!catDragFromHandle) { e.preventDefault(); return; }
+    catDragSrcId = section.getAttribute('data-cat-id');
+    section.classList.add('cat-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/x-category', catDragSrcId);
+  });
+  container.addEventListener('dragend', function(e) {
+    if (!catDragSrcId) return;
+    var section = e.target.closest('.category-section[data-cat-id]');
+    if (section) section.classList.remove('cat-dragging');
+    container.querySelectorAll('.cat-drag-over').forEach(function(el){ el.classList.remove('cat-drag-over'); });
+    catDragSrcId = null;
+  });
+  container.addEventListener('dragover', function(e) {
+    if (!catDragSrcId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    var target = e.target.closest('.category-section[data-cat-id]');
+    if (!target || target.getAttribute('data-cat-id') === catDragSrcId) return;
+    container.querySelectorAll('.cat-drag-over').forEach(function(el){ el.classList.remove('cat-drag-over'); });
+    target.classList.add('cat-drag-over');
+  });
+  container.addEventListener('drop', function(e) {
+    if (!catDragSrcId) return;
+    e.preventDefault();
+    container.querySelectorAll('.cat-drag-over').forEach(function(el){ el.classList.remove('cat-drag-over'); });
+    var target = e.target.closest('.category-section[data-cat-id]');
+    if (!target || target.getAttribute('data-cat-id') === catDragSrcId) return;
+    reorderCategories(catDragSrcId, target.getAttribute('data-cat-id'));
+    catDragSrcId = null;
+  });
+}
+
+/* ── Touch Drag & Drop (Categories) ── */
+function bindCatTouchDragDrop(container) {
+  var dragging = null, placeholder = null, scrollInterval = null;
+  container.addEventListener('touchstart', function(e) {
+    var handle = e.target.closest('.cat-drag-handle');
+    if (!handle) return;
+    var section = handle.closest('.category-section[data-cat-id]');
+    if (!section) return;
+    dragging = section;
+    section.classList.add('cat-touch-dragging');
+    placeholder = document.createElement('div');
+    placeholder.style.height = section.offsetHeight + 'px';
+    placeholder.style.marginBottom = '16px';
+    section.parentNode.insertBefore(placeholder, section);
+    section.style.position = 'fixed';
+    section.style.zIndex = '70';
+    section.style.left = section.getBoundingClientRect().left + 'px';
+    section.style.width = section.offsetWidth + 'px';
+    section.style.top = section.getBoundingClientRect().top + 'px';
+  }, {passive: true});
+
+  container.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    var y = e.touches[0].clientY;
+    dragging.style.top = (y - 30) + 'px';
+    // Auto-scroll
+    clearInterval(scrollInterval);
+    if (y < 80) { scrollInterval = setInterval(function(){ window.scrollBy(0, -10); }, 16); }
+    else if (y > window.innerHeight - 80) { scrollInterval = setInterval(function(){ window.scrollBy(0, 10); }, 16); }
+    // Find drop target
+    container.querySelectorAll('.category-section:not(.cat-touch-dragging)').forEach(function(s) {
+      var rect = s.getBoundingClientRect();
+      s.classList.toggle('cat-touch-drag-over', y > rect.top && y < rect.bottom);
+    });
+  }, {passive: false});
+
+  container.addEventListener('touchend', function() {
+    if (!dragging) return;
+    clearInterval(scrollInterval);
+    var target = container.querySelector('.category-section.cat-touch-drag-over');
+    dragging.classList.remove('cat-touch-dragging');
+    dragging.style.cssText = '';
+    if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+    container.querySelectorAll('.cat-touch-drag-over').forEach(function(el){ el.classList.remove('cat-touch-drag-over'); });
+    if (target && target.getAttribute('data-cat-id') !== dragging.getAttribute('data-cat-id')) {
+      reorderCategories(dragging.getAttribute('data-cat-id'), target.getAttribute('data-cat-id'));
+    }
+    dragging = null; placeholder = null;
+  });
+}
+
+/* ── View Switching ── */
+function showList() {
+  currentView = 'list';
+  currentTaskId = null;
+  $viewList.classList.add('active');
+  $viewDetail.classList.remove('active');
+  $btnBack.classList.remove('visible');
+  $navTitle.textContent = '引継ぎ業務フロー管理';
+  $fab.innerHTML = '&#65291;';
+  renderList();
+}
+
+function showDetail(taskId) {
+  currentView = 'detail';
+  currentTaskId = taskId;
+  $viewList.classList.remove('active');
+  $viewDetail.classList.add('active');
+  $btnBack.classList.add('visible');
+  var task = D.tasks.find(function(t){ return t.id === taskId; });
+  $navTitle.textContent = task ? task.name : '';
+  $fab.innerHTML = '&#65291;';
+  renderDetail();
+}
+
+/* ── Modals ── */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openTaskModal(taskId) {
+  editingTaskId = taskId;
+  var task = taskId ? D.tasks.find(function(t){ return t.id === taskId; }) : null;
+  document.getElementById('modalTaskTitle').textContent = task ? '業務を編集' : '業務を追加';
+  document.getElementById('fldCategory').value = task ? task.categoryId : '';
+  document.getElementById('fldName').value = task ? task.name : '';
+  document.getElementById('fldTiming').value = task ? (task.timing || '') : '';
+  document.getElementById('fldDest').value = task ? (task.dest || '') : '';
+  document.getElementById('fldOwner').value = task ? (task.owner || '') : '';
+  document.getElementById('fldDeadline').value = task ? (task.deadline || '') : '';
+  document.getElementById('fldMemo').value = task ? (task.memo || '') : '';
+  setColorPicker('taskColorPicker', task ? (task.color || 'black') : 'black');
+  openModal('modalTask');
+}
+
+function openTaskModalForCategory(catId) {
+  editingTaskId = null;
+  document.getElementById('modalTaskTitle').textContent = '業務を追加';
+  document.getElementById('fldCategory').value = catId;
+  document.getElementById('fldName').value = '';
+  document.getElementById('fldTiming').value = '';
+  document.getElementById('fldDest').value = '';
+  document.getElementById('fldOwner').value = '';
+  document.getElementById('fldDeadline').value = '';
+  document.getElementById('fldMemo').value = '';
+  setColorPicker('taskColorPicker', 'black');
+  openModal('modalTask');
+}
+
+function openCatModal(catId) {
+  editingCatId = catId;
+  var cat = catId ? D.categories.find(function(c){ return c.id === catId; }) : null;
+  document.getElementById('modalCatTitle').textContent = cat ? 'カテゴリーを編集' : 'カテゴリーを追加';
+  document.getElementById('fldCatName').value = cat ? cat.name : '';
+  setColorPicker('catColorPicker', cat ? (cat.color || 'black') : 'black');
+  openModal('modalCategory');
+}
+
+function openStepModal(stepId) {
+  editingStepId = stepId;
+  var task = D.tasks.find(function(t){ return t.id === currentTaskId; });
+  var step = null;
+  if (task && stepId) step = task.steps.find(function(s){ return s.id === stepId; });
+  document.getElementById('modalStepTitle').textContent = step ? 'ステップを編集' : 'フローステップを追加';
+  document.getElementById('fldStepName').value = step ? step.name : '';
+  document.getElementById('fldStepOwner').value = step ? (step.owner || '') : '';
+  document.getElementById('fldStepApprover').value = step ? (step.approver || '') : '';
+  document.getElementById('fldStepStart').value = step ? (step.start || '') : '';
+  document.getElementById('fldStepEnd').value = step ? (step.end || '') : '';
+  document.getElementById('fldStepStatus').value = step ? (step.status || 'not-started') : 'not-started';
+  document.getElementById('fldStepMemo').value = step ? (step.memo || '') : '';
+  setColorPicker('stepColorPicker', step ? (step.color || 'black') : 'black');
+  openModal('modalStep');
+}
+
+function showConfirm(msg, cb) {
+  document.getElementById('confirmMsg').textContent = msg;
+  confirmCallback = cb;
+  openModal('modalConfirm');
+}
+
+/* ── Color Picker ── */
+function setColorPicker(pickerId, color) {
+  var picker = document.getElementById(pickerId);
+  picker.querySelectorAll('.color-swatch').forEach(function(s) {
+    s.classList.toggle('selected', s.getAttribute('data-color') === color);
+  });
+}
+function getSelectedColor(pickerId) {
+  var selected = document.getElementById(pickerId).querySelector('.color-swatch.selected');
+  return selected ? selected.getAttribute('data-color') : 'black';
+}
+document.querySelectorAll('.color-picker').forEach(function(picker) {
+  onTapDelegate(picker, '.color-swatch', function(el) {
+    picker.querySelectorAll('.color-swatch').forEach(function(s){ s.classList.remove('selected'); });
+    el.classList.add('selected');
+  });
+});
+
+/* ── Save Handlers ── */
+function saveTaskFromModal() {
+  var catId = document.getElementById('fldCategory').value;
+  var name = document.getElementById('fldName').value.trim();
+  if (!name) { alert('業務名を入力してください'); return; }
+  if (!catId) { alert('カテゴリーを選択してください'); return; }
+
+  var data = {
+    categoryId: catId,
+    name: name,
+    timing: document.getElementById('fldTiming').value.trim(),
+    dest: document.getElementById('fldDest').value.trim(),
+    owner: document.getElementById('fldOwner').value.trim(),
+    deadline: document.getElementById('fldDeadline').value,
+    memo: document.getElementById('fldMemo').value.trim(),
+    color: getSelectedColor('taskColorPicker')
+  };
+
+  if (editingTaskId) {
+    D.tasks = D.tasks.map(function(t) {
+      if (t.id !== editingTaskId) return t;
+      return Object.assign({}, t, data);
+    });
+  } else {
+    data.id = uid();
+    data.steps = [];
+    D.tasks = D.tasks.concat([data]);
+  }
+  save();
+  closeModal('modalTask');
+  if (currentView === 'detail') renderDetail();
+  else renderList();
+}
+
+function saveCatFromModal() {
+  var name = document.getElementById('fldCatName').value.trim();
+  if (!name) { alert('カテゴリー名を入力してください'); return; }
+  var color = getSelectedColor('catColorPicker');
+
+  if (editingCatId) {
+    D.categories = D.categories.map(function(c) {
+      if (c.id !== editingCatId) return c;
+      return Object.assign({}, c, { name: name, color: color });
+    });
+  } else {
+    D.categories = D.categories.concat([{ id: uid(), name: name, collapsed: false, color: color }]);
+  }
+  save();
+  closeModal('modalCategory');
+  renderList();
+}
+
+function saveStepFromModal() {
+  var name = document.getElementById('fldStepName').value.trim();
+  if (!name) { alert('ステップ名を入力してください'); return; }
+
+  var data = {
+    name: name,
+    owner: document.getElementById('fldStepOwner').value.trim(),
+    approver: document.getElementById('fldStepApprover').value.trim(),
+    start: document.getElementById('fldStepStart').value,
+    end: document.getElementById('fldStepEnd').value,
+    status: document.getElementById('fldStepStatus').value,
+    memo: document.getElementById('fldStepMemo').value.trim(),
+    color: getSelectedColor('stepColorPicker')
+  };
+
+  var task = D.tasks.find(function(t){ return t.id === currentTaskId; });
+  if (!task) return;
+
+  if (editingStepId) {
+    task.steps = task.steps.map(function(s) {
+      if (s.id !== editingStepId) return s;
+      return Object.assign({}, s, data);
+    });
+  } else {
+    data.id = uid();
+    task.steps = task.steps.concat([data]);
+  }
+  save();
+  closeModal('modalStep');
+  renderDetail();
+}
+
+/* ── Sync (PC → スマホ) ── */
+function loadFromRemote() {
+  fetch('data.json?t=' + Date.now())
+    .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(parsed) {
+      D = {
+        categories: (parsed.categories || []).map(function(c) {
+          return c.color ? c : Object.assign({}, c, { color: 'black' });
+        }),
+        tasks: parsed.tasks || []
+      };
+      renderList();
+    })
+    .catch(function() { loadDefaultData(); renderList(); });
+}
+
+function syncToPhone() {
+  var payload = { categories: D.categories, tasks: D.tasks, syncedAt: new Date().toISOString() };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'data.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  alert('data.json をダウンロードしました。\nsync-handover.bat を実行してGitHubにプッシュしてください。');
+}
+
+/* ── Export / Import ── */
+function exportData() {
+  var blob = new Blob([JSON.stringify(D, null, 2)], {type: 'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'handover-workflow-' + today() + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var parsed = JSON.parse(ev.target.result);
+      if (parsed.categories && parsed.tasks) {
+        D = { categories: parsed.categories, tasks: parsed.tasks };
+        save();
+        showList();
+      } else {
+        alert('無効なファイル形式です');
+      }
+    } catch(err) { alert('ファイルの読み込みに失敗しました'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+/* ── Utility ── */
+function esc(s) {
+  if (!s) return '';
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+/* ── Event Binding ── */
+function init() {
+  if (IS_REMOTE) {
+    loadFromRemote(); // async — renderList() is called after fetch completes
+  } else {
+    load();
+    renderList();
+  }
+
+  // Drag & drop (bind once — events delegate via closest())
+  bindDesktopDragDrop($categoryList);
+  bindTouchDragDrop($categoryList);
+  bindCatDesktopDragDrop($categoryList);
+  bindCatTouchDragDrop($categoryList);
+
+  // Nav
+  onTap($btnBack, showList);
+  onTap($fab, function() {
+    if (currentView === 'list') openTaskModal(null);
+    else openStepModal(null);
+  });
+
+  // Sync / Export / Import
+  if (!IS_REMOTE) {
+    onTap(document.getElementById('btnSync'), syncToPhone);
+  } else {
+    var sb = document.getElementById('btnSync');
+    if (sb) sb.style.display = 'none';
+  }
+  onTap(document.getElementById('btnExport'), exportData);
+  onTap(document.getElementById('btnImport'), function() {
+    document.getElementById('fileImport').click();
+  });
+  document.getElementById('fileImport').addEventListener('change', importData);
+
+  // Task modal
+  onTap(document.getElementById('closeTaskModal'), function() { closeModal('modalTask'); });
+  onTap(document.getElementById('cancelTask'), function() { closeModal('modalTask'); });
+  onTap(document.getElementById('saveTask'), saveTaskFromModal);
+
+  // Category modal
+  onTap(document.getElementById('closeCatModal'), function() { closeModal('modalCategory'); });
+  onTap(document.getElementById('cancelCat'), function() { closeModal('modalCategory'); });
+  onTap(document.getElementById('saveCat'), saveCatFromModal);
+
+  // Step modal
+  onTap(document.getElementById('closeStepModal'), function() { closeModal('modalStep'); });
+  onTap(document.getElementById('cancelStep'), function() { closeModal('modalStep'); });
+  onTap(document.getElementById('saveStep'), saveStepFromModal);
+  onTap(document.getElementById('btnAddStep'), function() { openStepModal(null); });
+
+  // Confirm dialog
+  onTap(document.getElementById('closeConfirm'), function() { closeModal('modalConfirm'); });
+  onTap(document.getElementById('confirmNo'), function() { closeModal('modalConfirm'); });
+  onTap(document.getElementById('confirmYes'), function() {
+    closeModal('modalConfirm');
+    if (confirmCallback) confirmCallback();
+    confirmCallback = null;
+  });
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+
+  // Keyboard: Escape to close modals
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(function(m) { m.classList.remove('open'); });
+    }
+  });
+}
+
+init();
+})();
+</script>
+</body>
+</html>
