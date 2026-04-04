@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>引継ぎ業務フロー管理</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
 <script>
 // file:// detection: ONLY block on iOS/Android mobile (desktop file:// works fine)
 if (location.protocol === 'file:' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -50,6 +51,7 @@ if (location.protocol === 'file:' && /iPhone|iPad|iPod|Android/i.test(navigator.
   --transition: 200ms cubic-bezier(0.4,0,0.2,1);
   --font-sans: 'Inter','Noto Sans JP',-apple-system,BlinkMacSystemFont,sans-serif;
   --navbar-h: 56px;
+  --tabbar-h: 40px;
   --color-black: #1A202C;
   --color-red: #C53030;
   --color-blue: #2B6CB0;
@@ -103,12 +105,68 @@ input,select,textarea{font-family:inherit}
 .btn-nav-accent{background:rgba(255,255,255,0.9);color:var(--accent-blue);font-weight:600;border-color:transparent}
 .btn-nav-accent:hover{background:#fff}
 
+/* ── Tab Bar ── */
+.tab-bar{
+  position:fixed;top:var(--navbar-h);left:0;right:0;height:var(--tabbar-h);z-index:190;
+  background:var(--bg-card);border-bottom:1px solid var(--border-light);
+  display:flex;align-items:stretch;box-shadow:0 1px 4px rgba(0,0,0,0.04);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.tab-item{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+  font-size:0.82rem;font-weight:500;color:var(--text-muted);letter-spacing:0.01em;
+  cursor:pointer;border:none;background:transparent;
+  border-bottom:2.5px solid transparent;transition:all var(--transition);
+  min-height:40px;font-family:inherit;position:relative;
+}
+.tab-item.active{color:var(--accent-blue);font-weight:700;border-bottom-color:var(--accent-blue)}
+.tab-item:hover{background:var(--bg-hover)}
+.tab-item:active{opacity:0.7}
+
 /* ── Main Container ── */
-.main{margin-top:var(--navbar-h);padding:16px;max-width:1200px;margin-left:auto;margin-right:auto}
+.main{margin-top:calc(var(--navbar-h) + var(--tabbar-h));padding:16px;max-width:1200px;margin-left:auto;margin-right:auto}
 
 /* ── Views ── */
 .view{display:none}
 .view.active{display:block}
+
+/* ── Owner View ── */
+.owner-filter{margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.owner-filter select{
+  flex:1;padding:10px 14px;border:1px solid var(--border-color);
+  border-radius:var(--radius-md);font-size:0.85rem;font-family:inherit;
+  background:var(--bg-card);min-height:44px;color:var(--text-primary);
+  box-shadow:var(--shadow-xs);appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23718096'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;
+  transition:border-color var(--transition),box-shadow var(--transition);
+}
+.owner-filter select:focus{outline:none;border-color:var(--accent-blue);box-shadow:0 0 0 3px var(--accent-blue-soft)}
+.owner-group{margin-bottom:12px;border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm)}
+.owner-group-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;
+  background:linear-gradient(135deg,rgba(43,108,176,0.06) 0%,rgba(49,130,206,0.1) 100%);
+  color:var(--accent-blue);font-weight:600;font-size:0.85rem;cursor:pointer;
+  border-bottom:1px solid var(--border-light);
+}
+.owner-group-body{background:var(--bg-card)}
+.owner-progress{
+  font-size:0.7rem;background:var(--accent-blue-soft);color:var(--accent-blue);
+  padding:3px 10px;border-radius:10px;font-weight:500;
+}
+
+/* ── Status Badges ── */
+.badge-status{
+  font-size:0.68rem;padding:3px 10px;border-radius:12px;
+  font-weight:600;white-space:nowrap;cursor:pointer;
+  transition:all var(--transition);display:inline-block;
+  letter-spacing:0.02em;
+}
+.badge-status:active{transform:scale(0.92)}
+.badge-status-not-started{background:#EDF2F7;color:#A0AEC0}
+.badge-status-in-progress{background:rgba(43,108,176,0.1);color:#2B6CB0}
+.badge-status-completed{background:rgba(39,103,73,0.1);color:#276749}
 
 /* ── Stats Strip ── */
 .stats-strip{
@@ -388,6 +446,11 @@ input,select,textarea{font-family:inherit}
   .navbar{padding:0 10px}
   .nav-title{font-size:0.82rem}
   .main{padding:10px}
+  .tab-item{font-size:0.78rem;min-height:44px}
+  .owner-filter{margin-bottom:12px}
+  .owner-filter select{font-size:0.85rem;padding:10px 12px;min-height:48px}
+  .owner-group-header{padding:12px 14px;font-size:0.82rem}
+  .badge-status{font-size:0.65rem;padding:3px 8px;min-height:24px;display:inline-flex;align-items:center}
   .stat-card{min-width:100px;padding:10px 12px}
   .stat-card .stat-value{font-size:1.1rem}
   .detail-info{grid-template-columns:1fr}
@@ -426,6 +489,12 @@ input,select,textarea{font-family:inherit}
   </div>
 </nav>
 
+<!-- ── Tab Bar ── -->
+<div class="tab-bar" id="tabBar">
+  <button class="tab-item active" data-tab="list">&#128203; 全業務</button>
+  <button class="tab-item" data-tab="owner">&#128100; 担当者別</button>
+</div>
+
 <!-- ── List View ── -->
 <div class="main">
   <div class="view active" id="viewList">
@@ -435,6 +504,15 @@ input,select,textarea{font-family:inherit}
       <div class="empty-icon">&#128203;</div>
       <p>業務がまだ登録されていません<br>右下の＋ボタンから追加してください</p>
     </div>
+  </div>
+
+  <!-- ── Owner View ── -->
+  <div class="view" id="viewOwner">
+    <div class="stats-strip" id="ownerStatsStrip"></div>
+    <div class="owner-filter">
+      <select id="ownerSelect"></select>
+    </div>
+    <div id="ownerTaskList"></div>
   </div>
 
   <!-- ── Detail View ── -->
@@ -491,6 +569,14 @@ input,select,textarea{font-family:inherit}
         <div class="form-group">
           <label>期限</label>
           <input type="date" id="fldDeadline">
+        </div>
+        <div class="form-group">
+          <label>ステータス</label>
+          <select id="fldTaskStatus" style="padding:8px 12px;border:1px solid var(--border-color);border-radius:var(--radius-sm);font-family:inherit;font-size:0.85rem;min-height:40px">
+            <option value="not-started">未着手</option>
+            <option value="in-progress">進行中</option>
+            <option value="completed">完了</option>
+          </select>
         </div>
       </div>
       <div class="form-group">
@@ -687,6 +773,9 @@ var STATUS_LABELS = {
 /* ── State ── */
 var D = { categories: [], tasks: [] };
 var currentView = 'list';
+var currentTab = 'list';
+var selectedOwner = '__all__';
+var previousTab = 'list';
 var currentTaskId = null;
 var editingTaskId = null;
 var editingStepId = null;
@@ -705,6 +794,11 @@ var $emptyWorkflow = document.getElementById('emptyWorkflow');
 var $navTitle = document.getElementById('navTitle');
 var $btnBack = document.getElementById('btnBack');
 var $fab = document.getElementById('fab');
+var $viewOwner = document.getElementById('viewOwner');
+var $ownerStatsStrip = document.getElementById('ownerStatsStrip');
+var $ownerSelect = document.getElementById('ownerSelect');
+var $ownerTaskList = document.getElementById('ownerTaskList');
+var $tabBar = document.getElementById('tabBar');
 
 /* ── Persistence ── */
 function save() {
@@ -723,7 +817,10 @@ function load() {
       });
       D = {
         categories: cats,
-        tasks: parsed.tasks || []
+        tasks: (parsed.tasks || []).map(function(t) {
+          if (!t.status) return Object.assign({}, t, { status: 'not-started' });
+          return t;
+        })
       };
     } else {
       loadDefaultData();
@@ -760,74 +857,74 @@ function loadDefaultData() {
   var c = D.categories;
   D.tasks = [
     /* ── 産廃・環境管理 (c[0]) ── */
-    { id: uid(), categoryId: c[0].id, name: '産業廃棄物管理票交付等状況報告書', timing: '4月頃', dest: '宗像・遠賀保健福祉環境事務所', owner: '', deadline: '', memo: '愛和環境管理に出した産廃をリスト化して提出(4-6月)\n様式は県HPからダウンロード可能\n保管場所: 窓側棚4段目「産業廃棄物管理表」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[0].id, name: '産業廃棄物処理委託業者登録一覧', timing: '随時', dest: '記録の保管', owner: '', deadline: '', memo: '産廃業者の定期的な確認。許可書の有効期限の確認が必要(YH2C-044006)\n※ISOまでに再確認必要\n許可証の写し等の保管義務あり\n保管場所: 窓側棚4段目「産業廃棄物委託契約書」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[0].id, name: '産廃業者への産廃回収依頼', timing: '随時', dest: '愛和環境管理/丸清', owner: '', deadline: '', memo: '産廃置場が溜まったら業者に連絡\n基本は愛和環境管理、金型や装置等の金属が多いものは丸清に買取依頼(0円でも愛和よりお得)', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[0].id, name: '産業廃棄物管理票管理台帳の更新', timing: '随時', dest: '記録の保管', owner: '', deadline: '', memo: '産廃廃却時にマニフェストのファイリング、台帳の記入\nマニフェストの保管は5年間必要\n保管場所: 窓側棚4段目「産業廃棄物管理表」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[0].id, name: '産業廃棄物置場の表示', timing: '随時', dest: '', owner: '', deadline: '', memo: '廃棄物保管場所に情報表示の義務あり\nサイズは法にて規定あり(600×600mm)', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[0].id, name: '省エネ法対応エネルギー使用実績', timing: '4月頃', dest: 'DX推進室(総務)', owner: '', deadline: '', memo: '前年度内のエネルギー使用実績を表にまとめて提出\nデマンドデータや請求書から値を持ってくる\nまとめたものを九州経済産業局に提出', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[0].id, name: '省エネ施策実績・計画の提出', timing: '5月頃', dest: 'DX推進室(総務)', owner: '', deadline: '', memo: 'ハード対策・ソフト対策をまとめ九州経済産業局に提出\n例）照明のLED化、エアコン更新、節電対策等', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[0].id, name: '事業部保有溶剤確認・追加', timing: '7月頃', dest: '安全衛生環境室', owner: '', deadline: '', memo: '使用溶剤関係のCAS番号、含有量等の調査', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[0].id, name: '化学物質リスクアセスメント', timing: '7月頃', dest: '安全衛生環境室', owner: '', deadline: '', memo: 'CREATE-SIMPLEを用いてリスクアセス実施\n化学物質リスクアセスメントは義務化\n新規部材使用時に確認が必要\nCREATE-SIMPLEは事業部共通\\総務\\安全関係\\21.化学物質リスクアセスメントにあり', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '産業廃棄物管理票交付等状況報告書', timing: '4月頃', dest: '宗像・遠賀保健福祉環境事務所', owner: '長堀', deadline: '', memo: '愛和環境管理に出した産廃をリスト化して提出(4-6月)\n様式は県HPからダウンロード可能\n保管場所: 窓側棚4段目「産業廃棄物管理表」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '産業廃棄物処理委託業者登録一覧', timing: '随時', dest: '記録の保管', owner: '長堀', deadline: '', memo: '産廃業者の定期的な確認。許可書の有効期限の確認が必要(YH2C-044006)\n※ISOまでに再確認必要\n許可証の写し等の保管義務あり\n保管場所: 窓側棚4段目「産業廃棄物委託契約書」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '産廃業者への産廃回収依頼', timing: '随時', dest: '愛和環境管理/丸清', owner: '', deadline: '', memo: '産廃置場が溜まったら業者に連絡\n基本は愛和環境管理、金型や装置等の金属が多いものは丸清に買取依頼(0円でも愛和よりお得)', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '産業廃棄物管理票管理台帳の更新', timing: '随時', dest: '記録の保管', owner: '', deadline: '', memo: '産廃廃却時にマニフェストのファイリング、台帳の記入\nマニフェストの保管は5年間必要\n保管場所: 窓側棚4段目「産業廃棄物管理表」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '産業廃棄物置場の表示', timing: '随時', dest: '', owner: '', deadline: '', memo: '廃棄物保管場所に情報表示の義務あり\nサイズは法にて規定あり(600×600mm)\n※現担当者：高岸、川原→担当者変更が必要', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '省エネ法対応エネルギー使用実績', timing: '4月頃', dest: 'DX推進室(総務)', owner: '長堀', deadline: '', memo: '前年度内のエネルギー使用実績を表にまとめて提出\nデマンドデータや請求書から値を持ってくる\nまとめたものを九州経済産業局に提出', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '省エネ施策実績・計画の提出', timing: '5月頃', dest: 'DX推進室(総務)', owner: '長堀', deadline: '', memo: 'ハード対策・ソフト対策をまとめ九州経済産業局に提出\n例）照明のLED化、エアコン更新、節電対策等', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '事業部保有溶剤確認・追加', timing: '7月頃', dest: '安全衛生環境室', owner: '上野', deadline: '', memo: '使用溶剤関係のCAS番号、含有量等の調査', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[0].id, name: '化学物質リスクアセスメント', timing: '7月頃', dest: '安全衛生環境室', owner: '上野', deadline: '', memo: 'CREATE-SIMPLEを用いてリスクアセス実施\n化学物質リスクアセスメントは義務化\n新規部材使用時に確認が必要\nCREATE-SIMPLEは事業部共通\\総務\\安全関係\\21.化学物質リスクアセスメントにあり', color: 'black', status: 'not-started', steps: [] },
 
     /* ── 法規制・法定点検 (c[1]) ── */
-    { id: uid(), categoryId: c[1].id, name: '浄化槽維持管理状況報告書', timing: '4月頃', dest: '宗像・遠賀保健福祉環境事務所', owner: '', deadline: '', memo: '砂山営農にて作成し保健福祉環境事務所に提出\n毎月のデータをまとめ提出\n保管場所: 窓側棚3段目「法定自主点検4 浄化槽」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '浄化槽自主点検(週1回)', timing: '毎週', dest: '記録の保管', owner: '川原', deadline: '', memo: '点検リストあり\n保管場所: 窓側棚3段目「法定自主点検4 浄化槽」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '浄化槽点検(毎月)', timing: '毎月初め', dest: '記録の保管', owner: '', deadline: '', memo: '砂山営農にて実施\n記録の保管必要', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '浄化槽緊急対応訓練・確認', timing: '年1回', dest: '', owner: '', deadline: '', memo: '1回/年で実施。教育記録作成', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: 'ガソリントラップ自主点検', timing: '1回/3ヶ月', dest: '記録の保管', owner: '川原', deadline: '', memo: '地域協定で3ヶ月に1回実施\n記録表あり\n保管場所: 窓側棚4段目「ガソリントラップ記録表」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '法規制又はその他の要求事項', timing: '4〜6月', dest: '記録の保管', owner: '川原', deadline: '', memo: '製造室保管(YH2ER-XXXXXX)\n今後の採番方法の見直し検討要\n1回/年に変更済み\n保管場所: 窓側棚4段目「環境法令確認帳票類」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '法定自主点検リスト作成', timing: '4月(年度初め)', dest: '', owner: '', deadline: '', memo: '年度初めにリスト作成\n毎月進捗等を記入\n保管場所: 窓側棚4段目「各種自主点検リスト」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '電気設備点検(年次)', timing: '5月', dest: '九州電気保安協会', owner: '竹森', deadline: '', memo: '高圧受電設備精密点検(1回/年)\n保管場所: 窓側棚3段目「法定自主点検5 電気設備点検(年次)」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: 'キュービクル等設備点検(月例)', timing: '毎月', dest: '記録の保管', owner: '川原', deadline: '', memo: '電気主任技術者印が必要(富永さん)\n川原作成→高岸押印後→富永さんへ押印依頼\n保管場所: 窓側棚3段目「法定自主点検5.1 電気設備点検表(月例)」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '消防設備点検(業者)', timing: '8月・1月', dest: 'ホーチキ→消防署', owner: '', deadline: '', memo: 'ホーチキに委託。2回/年実施\n1回/3年ホーチキから消防署に結果提出\n消火器・ホースの使用期限チェック、報知器の動作確認等\n2025年に消火器・ホースは更新済み(寿命は10年)\n保管場所: 窓側棚3段目「法定自主点検1 消防設備」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '営業車車検', timing: '8月頃', dest: 'WARCに依頼', owner: '', deadline: '', memo: 'ADバンの車検。他は他の室・Grで', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: 'SDSの最新版確認・手配', timing: '8月頃', dest: '記録の保管', owner: '', deadline: '', memo: 'ISO前に全て最新版に差替え実施\n危険有害化学物質を使用する時すぐに確認できる場所に保管・掲示する義務あり\n保管場所: 窓側棚6段目「SDS」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '冷媒漏洩点検(フロン排出抑制法)', timing: '1回/3年', dest: '記録の保管', owner: '', deadline: '', memo: '花田商会(ダイキン)に依頼\n業者点検は26年度予定\n簡易点検は4,7,10,1月に実施(川原)\nダイキンのサイトを使って入力\n保管場所: 窓側棚4段目「フロン排出抑制法関連資料」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: 'フォークリフト特定自主検査', timing: '9月頃', dest: '記録の保管', owner: '', deadline: '', memo: '業者に1回/年で依頼\n自主点検記録の保管(使用者が使用前点検実施、事務所で保管)\n保管場所: 窓側棚3段目「法定自主点検2.1 フォークリフト」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '36協定の提出', timing: '3月', dest: '労基署(本社人事経由)', owner: '', deadline: '', memo: '終業時間・休日・人員等を組合支部長と人事部長の押印を押し提出\n2025年は本社でまとめて提出\n保管場所: 窓側から4番目の棚1段目「三六協定等」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '安全管理者・衛生管理者・産業医の選任届', timing: '随時', dest: '北九州西労働基準監督署', owner: '', deadline: '', memo: '労働者が50人以上になったら届出。担当者変更時も提出が必要\nR7年10月に提出済み', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[1].id, name: '振動規制法・騒音規制法 氏名等変更届', timing: '随時', dest: '中間市', owner: '', deadline: '', memo: '設置者の氏名・組織名等が変更になった時に届出\nプレス類は廃却済み\nコンプレッサー廃却後届出必要\n4/1付け作成済み(提出未完)', color: 'red', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '浄化槽維持管理状況報告書', timing: '4月頃', dest: '宗像・遠賀保健福祉環境事務所', owner: '長堀', deadline: '', memo: '砂山営農にて作成し保健福祉環境事務所に提出\n毎月のデータをまとめ提出\n保管場所: 窓側棚3段目「法定自主点検4 浄化槽」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '浄化槽自主点検(週1回)', timing: '毎週', dest: '記録の保管', owner: '川原', deadline: '', memo: '点検リストあり\n保管場所: 窓側棚3段目「法定自主点検4 浄化槽」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '浄化槽点検(毎月)', timing: '毎月初め', dest: '記録の保管', owner: '', deadline: '', memo: '砂山営農にて実施\n記録の保管必要', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '浄化槽緊急対応訓練・確認', timing: '年1回', dest: '', owner: '', deadline: '', memo: '1回/年で実施。教育記録作成', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: 'ガソリントラップ自主点検', timing: '1回/3ヶ月', dest: '記録の保管', owner: '川原', deadline: '', memo: '地域協定で3ヶ月に1回実施\n記録表あり\n地域協定で3ヶ月に1回清掃も実施\n保管場所: 窓側棚4段目「ガソリントラップ記録表」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '法規制又はその他の要求事項', timing: '4〜6月', dest: '記録の保管', owner: '祐生', deadline: '', memo: '製造室保管(YH2ER-XXXXXX)\n今後の採番方法の見直し検討要\n1回/年に変更済み\n担当補佐: 川原\n保管場所: 窓側棚4段目「環境法令確認帳票類」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '法定自主点検リスト作成', timing: '4月(年度初め)', dest: '', owner: '', deadline: '', memo: '年度初めにリスト作成\n毎月進捗等を記入\n保管場所: 窓側棚4段目「各種自主点検リスト」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '電気設備点検(年次・立会い要)', timing: '5月', dest: '九州電気保安協会', owner: '藤谷', deadline: '', memo: '高圧受電設備精密点検(1回/年)\n九州電気保安協会に依頼（竹森フォローを依頼）\n※電鋳のカラスの巣の除去要！NTTに依頼する\n保管場所: 窓側棚3段目「法定自主点検5 電気設備点検(年次)」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: 'キュービクル等設備点検(月例)', timing: '毎月', dest: '記録の保管', owner: '川原', deadline: '', memo: '電気主任技術者印が必要(富永さん)\n川原作成→高岸押印後→富永さんへ押印依頼\n保管場所: 窓側棚3段目「法定自主点検5.1 電気設備点検表(月例)」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '消防設備点検(業者)', timing: '8月・1月', dest: 'ホーチキ→消防署', owner: '裕也', deadline: '', memo: 'ホーチキに委託。2回/年実施\n1回/3年ホーチキから消防署に結果提出\n消火器・ホースの使用期限チェック、報知器の動作確認等\n2025年に消火器・ホースは更新済み(寿命は10年)\n保管場所: 窓側棚3段目「法定自主点検1 消防設備」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '営業車車検', timing: '8月頃', dest: 'WARCに依頼', owner: '広田', deadline: '', memo: 'ADバンの車検。他は他の室・Grで', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: 'SDSの最新版確認・手配', timing: '8月頃', dest: '記録の保管', owner: '祐生', deadline: '', memo: 'ISO前に全て最新版に差替え実施\n危険有害化学物質を使用する時すぐに確認できる場所に保管・掲示する義務あり\n保管場所: 窓側棚6段目「SDS」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '冷媒漏洩点検(フロン排出抑制法)', timing: '1回/3年', dest: '記録の保管', owner: '長堀', deadline: '', memo: '花田商会(ダイキン)に依頼\n業者点検は26年度予定\n簡易点検は4,7,10,1月に実施(川原)\nダイキンのサイトを使って入力\n保管場所: 窓側棚4段目「フロン排出抑制法関連資料」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: 'フォークリフト特定自主検査', timing: '9月頃', dest: '記録の保管', owner: '祐生', deadline: '', memo: '業者に1回/年で依頼\n自主点検記録の保管(使用者が使用前点検実施、事務所で保管)\n保管場所: 窓側棚3段目「法定自主点検2.1 フォークリフト」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '36協定の提出', timing: '3月', dest: '労基署(本社人事経由)', owner: '祐生', deadline: '', memo: '終業時間・休日・人員等を組合支部長と人事部長の押印を押し提出\n2025年は本社でまとめて提出\n保管場所: 窓側から4番目の棚1段目「三六協定等」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '安全管理者・衛生管理者・産業医の選任届', timing: '随時', dest: '北九州西労働基準監督署', owner: '', deadline: '', memo: '労働者が50人以上になったら届出。担当者変更時も提出が必要\nR7年10月に提出済み', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[1].id, name: '振動規制法・騒音規制法 氏名等変更届', timing: '随時', dest: '中間市', owner: '', deadline: '', memo: '設置者の氏名・組織名等が変更になった時に届出\nプレス類は廃却済み\nコンプレッサー廃却後届出必要\n4/1付け作成済み(提出未完)', color: 'red', status: 'not-started', steps: [] },
 
     /* ── 安全衛生 (c[2]) ── */
-    { id: uid(), categoryId: c[2].id, name: '全国安全週間準備月間', timing: '6月', dest: '安全衛生環境室', owner: '', deadline: '', memo: '安全標語・安全ポスターの提出依頼あり', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[2].id, name: '全国労働衛生週間準備月間', timing: '9月', dest: '安全衛生環境室', owner: '', deadline: '', memo: '労働衛生標語、ポスターの提出依頼あり', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[2].id, name: '安全担当者会議', timing: '6月・9月・11月・1月・3月', dest: '安全衛生環境室', owner: '', deadline: '', memo: 'A3の資料の提出が必要\n9月:上半期まとめ、11月:年間まとめ、1月:年間計画、3月:3月までのまとめ', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[2].id, name: '健康診断リスト送付', timing: '2月', dest: '西日本産業衛生会', owner: '', deadline: '', memo: '事業部メンバーのリストに検査内容+オプションを記載し衛生会の梅田様にメール送付\n西日本産業衛生会 立花様 093-671-8110\n保管場所: 窓側棚4段目「顧客満足度アンケート結果」付近', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[2].id, name: 'ストレスチェック', timing: '年1回', dest: '安全衛生環境室', owner: '', deadline: '', memo: '現在は安全衛生環境室が準備・展開している\n今後については未確認', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[2].id, name: '災害速報・休業速報の転送', timing: '随時', dest: '', owner: '', deadline: '', memo: 'メールの部内展開', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[2].id, name: 'スタッフパトロール', timing: '年1回', dest: '安全衛生環境室', owner: '', deadline: '', memo: '本社地区のメンバーで安全の相互パトロールを実施\nパトロールを受ける側、担当者を送り込む側の両方がある\n4月20～24日のどこかで受け側としての依頼あり', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[2].id, name: '安全用品の注文', timing: '10月頃', dest: '本社安全', owner: '', deadline: '', memo: '安全衛生旗、横断幕(年度スローガン)、安全衛生管理方針ポスターの手配', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: '全国安全週間準備月間', timing: '6月', dest: '安全衛生環境室', owner: '上野', deadline: '', memo: '安全標語・安全ポスターの提出依頼あり', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: '全国労働衛生週間準備月間', timing: '9月', dest: '安全衛生環境室', owner: '上野', deadline: '', memo: '労働衛生標語、ポスターの提出依頼あり', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: '安全担当者会議', timing: '6月・9月・11月・1月・3月', dest: '安全衛生環境室', owner: '上野', deadline: '', memo: 'A3の資料の提出が必要\n9月:上半期まとめ、11月:年間まとめ、1月:年間計画、3月:3月までのまとめ', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: '健康診断リスト送付', timing: '2月', dest: '西日本産業衛生会', owner: '裕也', deadline: '', memo: '事業部メンバーのリストに検査内容+オプションを記載し衛生会に送付\n西日本産業衛生会から前年度の受診データをベースに次回健診の情報に更新依頼が来る\n検査内容+オプション検査を各自に確認後送付\n連絡先: 西日本産業衛生会 立花様 093-671-8110\n保管場所: 窓側棚4段目「顧客満足度アンケート結果」付近', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: 'ストレスチェック', timing: '年1回', dest: '安全衛生環境室', owner: '', deadline: '', memo: '現在は安全衛生環境室が準備・展開している\n今後については未確認', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: '災害速報・休業速報の転送', timing: '随時', dest: '', owner: '', deadline: '', memo: 'メールの部内展開', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: 'スタッフパトロール', timing: '年1回', dest: '安全衛生環境室', owner: '', deadline: '', memo: '本社地区のメンバーで安全の相互パトロールを実施\nパトロールを受ける側、担当者を送り込む側の両方がある\n4月20～24日のどこかで受け側としての依頼あり', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[2].id, name: '安全用品の注文', timing: '10月頃', dest: '本社安全', owner: '', deadline: '', memo: '安全衛生旗、横断幕(年度スローガン)、安全衛生管理方針ポスターの手配', color: 'black', status: 'not-started', steps: [] },
 
     /* ── 消防・防火 (c[3]) ── */
-    { id: uid(), categoryId: c[3].id, name: '防火管理者届出', timing: '随時', dest: '消防署', owner: '松本', deadline: '', memo: '労働者50人以上で届出\n講習の受講が必須\n仮選任届出書作成済み(提出未完)', color: 'red', steps: [] },
-    { id: uid(), categoryId: c[3].id, name: '消防設備自主点検', timing: '毎月', dest: '記録保管', owner: '川原', deadline: '', memo: '1回/月で実施。ファイル有り\n保管場所: 窓側棚3段目「法定自主点検1.1 消防設備管理チェックリスト」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[3].id, name: '中間市消防署立入検査', timing: '不定期', dest: '中間市消防署', owner: '', deadline: '', memo: '不定期で実施される\n2026年の検査は消火器・ホースが設備点検でNGになっていたのが更新されているかの確認\nホーチキの点検票のファイリングは必要', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[3].id, name: '電波暗室の消火器設置(特例)', timing: '随時', dest: '消防署', owner: '', deadline: '', memo: '暗室に火災検知器が設置できないため\n消防署に特例届出書提出・承認済み(ホーチキから消防署へ提出)', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[3].id, name: '防火管理者届出', timing: '随時', dest: '消防署', owner: '松本', deadline: '', memo: '労働者50人以上で届出\n講習の受講が必須\n仮選任届出書作成済み(提出完了)', color: 'red', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[3].id, name: '消防設備自主点検', timing: '毎月', dest: '記録保管', owner: '川原', deadline: '', memo: '1回/月で実施。ファイル有り\n保管場所: 窓側棚3段目「法定自主点検1.1 消防設備管理チェックリスト」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[3].id, name: '中間市消防署立入検査', timing: '不定期', dest: '中間市消防署', owner: '', deadline: '', memo: '不定期で実施される\n2026年の検査は消火器・ホースが設備点検でNGになっていたのが更新されているかの確認\nホーチキの点検票のファイリングは必要', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[3].id, name: '電波暗室の消火器設置(特例)', timing: '随時', dest: '消防署', owner: '', deadline: '', memo: '暗室に火災検知器が設置できないため\n消防署に特例届出書提出・承認済み(ホーチキから消防署へ提出)', color: 'black', status: 'not-started', steps: [] },
 
     /* ── 人事・雇用契約 (c[4]) ── */
-    { id: uid(), categoryId: c[4].id, name: '雇用契約書(契約社員)', timing: '9月・3月', dest: '人事室', owner: '', deadline: '', memo: '千々和・隈部・広田の雇用延長', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[4].id, name: '労働者派遣個別契約書更新', timing: '3月・6月・9月・12月', dest: 'テクノプロ', owner: '', deadline: '', memo: '堀江さんの更新(3ヶ月毎)', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[4].id, name: '最低賃金に関する基礎調査', timing: '5月', dest: '厚生労働省(福岡労働局)', owner: '', deadline: '', memo: '人事室(坂尾GL)へ依頼\n人事室で記入・回答してもらっている', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[4].id, name: '雇用契約書(契約社員)', timing: '9月・3月', dest: '人事室', owner: '裕也', deadline: '', memo: '千々和・隈部・広田の雇用延長', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[4].id, name: '労働者派遣個別契約書更新', timing: '3月・6月・9月・12月', dest: 'テクノプロ', owner: '裕也', deadline: '', memo: '堀江さんの更新(3ヶ月毎)', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[4].id, name: '最低賃金に関する基礎調査', timing: '5月', dest: '厚生労働省(福岡労働局)', owner: '祐生', deadline: '', memo: '人事室(坂尾GL)へ依頼\n人事室で記入・回答してもらっている', color: 'black', status: 'not-started', steps: [] },
 
     /* ── ISO審査対応 (c[5]) ── */
-    { id: uid(), categoryId: c[5].id, name: 'ISO審査(9001・14001)', timing: '10月', dest: '', owner: '', deadline: '', memo: '事前にISO9001、14001の資料整理が必要', color: 'blue', steps: [] },
-    { id: uid(), categoryId: c[5].id, name: '環境方針の作成・掲示', timing: '4月(年度初め)', dest: 'ISO14001', owner: '', deadline: '', memo: '年度初めに作成、掲示。教育記録を作成', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[5].id, name: '環境目標の更新', timing: '毎月', dest: 'ISO14001', owner: '', deadline: '', memo: '電力使用量維持で計画書作成済み\n毎月の更新が必要。電力使用量のグラフを作成\n保管場所: 窓側棚6段目「環境側面抽出関係」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[5].id, name: '業務遂行能力一覧', timing: '随時', dest: 'ISO9001/14001', owner: '', deadline: '', memo: '樹脂関連の削除、環境影響評価能力と内部監査関連能力の追加(管理Gr)\n管理Grの川原の能力一覧', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[5].id, name: '利害関係者見直し', timing: '随時', dest: 'ISO9001/14001', owner: '', deadline: '', memo: '樹脂成型関係削除、角田無線等の追加', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[5].id, name: '購買取引先評価・認定一覧', timing: '随時', dest: 'ISO9001', owner: '', deadline: '', memo: '品質・価格等で点数をつけA～Dランク付け\nランクによって次回評価タイミングが変わる\n2024年評価対象業者の評価実施\n保管場所: 窓側棚5段目「購買取引先リスト」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[5].id, name: 'お客様満足度調査', timing: '随時', dest: 'ISO9001', owner: '', deadline: '', memo: '営業Grからの評価\n営業担当者がお客様の声を聴いてまとめている\n保管場所: 窓側棚4段目「顧客満足度アンケート結果」', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[5].id, name: '著しい環境影響評価＆対策の見直し', timing: '随時', dest: 'ISO14001', owner: '', deadline: '', memo: '工程追加等による見直しが必要\n電力使用量を環境目標に設定', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[5].id, name: '環境関連の教育実施・記録', timing: '随時', dest: 'ISO9001', owner: '', deadline: '', memo: '教育記録のファイル有り', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: 'ISO審査(9001・14001)', timing: '10月', dest: '', owner: '裕也/祐生', deadline: '', memo: '事前にISO9001、14001の資料整理が必要', color: 'blue', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: '環境方針の作成・掲示', timing: '4月(年度初め)', dest: 'ISO14001', owner: '', deadline: '', memo: '年度初めに作成、掲示。教育記録を作成', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: '環境目標の更新', timing: '毎月', dest: 'ISO14001', owner: '', deadline: '', memo: '電力使用量維持で計画書作成済み\n毎月の更新が必要。電力使用量のグラフを作成\n保管場所: 窓側棚6段目「環境側面抽出関係」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: '業務遂行能力一覧', timing: '随時', dest: 'ISO9001/14001', owner: '', deadline: '', memo: '樹脂関連の削除、環境影響評価能力と内部監査関連能力の追加(管理Gr)\n管理Grの川原の能力一覧', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: '利害関係者見直し', timing: '随時', dest: 'ISO9001/14001', owner: '', deadline: '', memo: '樹脂成型関係削除、角田無線等の追加', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: '購買取引先評価・認定一覧', timing: '随時', dest: 'ISO9001', owner: '', deadline: '', memo: '品質・価格等で点数をつけA～Dランク付け\nランクによって次回評価タイミングが変わる\n2024年評価対象業者の評価実施\n保管場所: 窓側棚5段目「購買取引先リスト」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: 'お客様満足度調査', timing: '随時', dest: 'ISO9001', owner: '', deadline: '', memo: '営業Grからの評価\n営業担当者がお客様の声を聴いてまとめている\n保管場所: 窓側棚4段目「顧客満足度アンケート結果」', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: '著しい環境影響評価＆対策の見直し', timing: '随時', dest: 'ISO14001', owner: '', deadline: '', memo: '工程追加等による見直しが必要\n電力使用量を環境目標に設定', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[5].id, name: '環境関連の教育実施・記録', timing: '随時', dest: 'ISO9001', owner: '', deadline: '', memo: '教育記録のファイル有り', color: 'black', status: 'not-started', steps: [] },
 
     /* ── 設備予算・伺い書 (c[6]) ── */
-    { id: uid(), categoryId: c[6].id, name: '設備予算申請', timing: '1月・7月', dest: '技術企画室', owner: '', deadline: '', memo: '上期:1月提出→4月令達。下期:7月提出→10月令達\n修理費内は点検費用も含む。下期はローリングリスト要\n本社サーバー内に設備予算管理表を作成して保存\n保管場所: 窓側棚5段目「伺い書・決裁通知」', color: 'black', steps: [
+    { id: uid(), categoryId: c[6].id, name: '設備予算申請', timing: '1月・7月', dest: '技術企画室', owner: '上野/裕也', deadline: '', memo: '上期:1月提出→3月令達→4月実行。下期:7月提出→9月令達→10月実行\n修理費内は点検費用も含む。下期はローリングリスト要\n本社サーバー内に設備予算管理表を作成して保存\n保管場所: 窓側棚5段目「伺い書・決裁通知」', color: 'black', status: 'not-started', steps: [
       { id: uid(), name: '予算案の作成', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '設備予算申請フォルダ内のフォーマット使用', color: 'black' },
       { id: uid(), name: '森田MGに事前チェック依頼', owner: '', approver: '森田MG', start: '', end: '', status: 'not-started', memo: 'Excelデータを事前に送ってチェック', color: 'black' },
       { id: uid(), name: '電子印(部内電子印後、購買に送付)', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '電子印不可の場合あり', color: 'black' }
     ] },
-    { id: uid(), categoryId: c[6].id, name: '設備予算実行伺い書', timing: '随時', dest: '技術企画室', owner: '', deadline: '', memo: '予算令達後に実行伺い書を作成\n2025年度は技術室3件\n伺い書(表紙): ①申請概要②発注先③発注金額④検収予定年月⑤支払条件⑥仕様⑦その他', color: 'black', steps: [
+    { id: uid(), categoryId: c[6].id, name: '設備予算実行伺い書', timing: '随時', dest: '技術企画室', owner: '', deadline: '', memo: '予算令達後に実行伺い書を作成\n2025年度は技術室3件\n伺い書(表紙): ①申請概要②発注先③発注金額④検収予定年月⑤支払条件⑥仕様⑦その他', color: 'black', status: 'not-started', steps: [
       { id: uid(), name: '伺い書(表紙)作成', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '', color: 'black' },
       { id: uid(), name: '予算申請書', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '', color: 'black' },
       { id: uid(), name: '見積比較検討書 or 特命理由書', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '相見積が基本。特命は1社あたりA4で1枚\n見積書(発行日付と有効期限に注意)', color: 'black' },
@@ -835,37 +932,137 @@ function loadDefaultData() {
       { id: uid(), name: '令達書添付', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '', color: 'black' },
       { id: uid(), name: '実績検収報告書', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '検収時に作成。予算管理表の更新も必要', color: 'black' }
     ] },
-    { id: uid(), categoryId: c[6].id, name: '工事案件購買伺い書(ソリューション)', timing: '随時', dest: '購買', owner: '', deadline: '', memo: '伺い書(表紙): ①注文内容②受注予定額③予定納期④代金回収条件⑤外注発注先⑥発注金額⑦支払条件⑧収支状況\n電子印可(部内電子印後PDFを購買に送付)', color: 'black', steps: [
+    { id: uid(), categoryId: c[6].id, name: '工事案件購買伺い書(ソリューション)', timing: '随時', dest: '購買', owner: '', deadline: '', memo: '伺い書(表紙): ①注文内容②受注予定額③予定納期④代金回収条件⑤外注発注先⑥発注金額⑦支払条件⑧収支状況\n電子印可(部内電子印後PDFを購買に送付)', color: 'black', status: 'not-started', steps: [
       { id: uid(), name: '伺い書(表紙)作成', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '', color: 'black' },
       { id: uid(), name: '添付資料準備(注文書、予算管理表、手配品一覧等)', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '注文書(or内示)、予算管理表、在庫引当品一覧、手配品一覧、工程表、見積り仕様書', color: 'black' },
       { id: uid(), name: '見積比較検討書 or 特命理由書', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '見積書は採用・相見積の両方添付。発行日付と有効期限に注意', color: 'black' },
       { id: uid(), name: '電子印・購買送付', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '部内電子印後PDFを購買に送付\nExcelデータは送らない(チェックが厳しくなる)', color: 'black' }
     ] },
-    { id: uid(), categoryId: c[6].id, name: '伺い書の採番管理', timing: '随時', dest: '', owner: '', deadline: '', memo: '採番台帳は年度毎に作成(2026年度は仮作成済み)\n保管場所: 共有フォルダ【事業部共通】\\【社外秘】予算実績資産\\契約書,伺い書', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[6].id, name: '支払条件変更依頼書', timing: '随時', dest: '購買', owner: '', deadline: '', memo: '相手先社内条件等の理由はNGとなる\nコーエイ機工(個人経営)は目を付けられており他社を探せと言われている\n保管場所: 共有フォルダ【事業部共通】\\【社外秘】予算実績資産\\支払条件変更依頼書', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[6].id, name: 'YJK・改善提案担当者会議', timing: '7月', dest: '技術企画室', owner: '', deadline: '', memo: '創業記念表彰、YJK全社大会の件等(ZOOM参加可)', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[6].id, name: '伺い書の採番管理', timing: '随時', dest: '', owner: '', deadline: '', memo: '採番台帳は年度毎に作成(2026年度は仮作成済み)\n保管場所: 共有フォルダ【事業部共通】\\【社外秘】予算実績資産\\契約書,伺い書', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[6].id, name: '支払条件変更依頼書', timing: '随時', dest: '購買', owner: '', deadline: '', memo: '相手先社内条件等の理由はNGとなる\nコーエイ機工(個人経営)は目を付けられており他社を探せと言われている\n保管場所: 共有フォルダ【事業部共通】\\【社外秘】予算実績資産\\支払条件変更依頼書', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[6].id, name: 'YJK・改善提案担当者会議', timing: '7月', dest: '技術企画室', owner: '祐生', deadline: '', memo: '創業記念表彰、YJK全社大会の件等(ZOOM参加可)', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[6].id, name: '臨時予算申請及び実行伺い書', timing: '随時', dest: '技術企画室', owner: '', deadline: '', memo: '通常と異なり予算申請書と実行伺いが同時提出\n予算番号無し・令達書無し・総務受付番号も無し\n予算申請書の2項で「安全・防災」を記入した場合はリスク評価表を添付\n例: デモ・レンタル室エアコン更新(3/24決裁済み)', color: 'black', status: 'not-started', steps: [
+      { id: uid(), name: '伺い書(臨時予算申請及び実行)作成', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '伺い書の最上段が「伺い書(臨時予算申請及び実行)」になる', color: 'black' },
+      { id: uid(), name: '予算申請書', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '', color: 'black' },
+      { id: uid(), name: '見積比較検討書 or 特命理由書', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '見積書(発行日付と有効期限に注意)', color: 'black' },
+      { id: uid(), name: '支払条件変更依頼書(該当時)', owner: '', approver: '', start: '', end: '', status: 'not-started', memo: '取適法対象分も含む', color: 'black' }
+    ] },
+    { id: uid(), categoryId: c[6].id, name: '設備予算管理表(実績検収報告書)', timing: '随時', dest: '技術企画室', owner: '', deadline: '', memo: '設備予算(臨時含む)実行時に作成が必要\n手順書を技術企画室で作成済み\n2025年度下期から開始しているため進行中のデータあり\n発注時や納品があった月はシートをコピーし過去の履歴を残す必要あり\n発注品が納入されたら実績検収報告書を作成し技術企画室に提出\nサイン記入欄あり、電子印不可\n保管場所: \\\\192.168.101.62\\設備予算\\15-2ICTS事業部', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[6].id, name: 'カード決済が必要な案件', timing: '随時', dest: '経理部', owner: '', deadline: '', memo: '部内伺い書を回覧後、経理部 川口MGにメールで依頼する', color: 'black', status: 'not-started', steps: [] },
 
     /* ── 毎月定例業務 (c[7]) ── */
-    { id: uid(), categoryId: c[7].id, name: '電子請求書の送付・押印', timing: '毎月1日', dest: '業務企画Gr', owner: '', deadline: '', memo: 'ヤマト・Amazon等の電子請求書を竹森MG、長岡、濱口、長堀、井上へ転送\n派遣(長堀、井上)請求書ダウンロード\nヤマトがある時はダウンロード要(小嶺確認)', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[7].id, name: '改善提案月報', timing: '毎月10日', dest: '技術企画室', owner: '小嶺', deadline: '', memo: '製造室小嶺さんが集計→確認・追記後→本社資料に入力\n他の室・Grは担当者不明', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[7].id, name: '旧ハイプレ棚卸資料', timing: '毎月', dest: '業務企画Gr', owner: '', deadline: '', memo: '製品棚卸資料+有価材\n有価材も26年3月まで', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[7].id, name: '災害・私傷病報告', timing: '毎月20日頃', dest: '安全衛生環境室', owner: '', deadline: '', memo: '', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[7].id, name: '本社安全衛生委員会', timing: '毎月20日頃', dest: '安全衛生環境室', owner: '', deadline: '', memo: '本社の委員会資料へ活動内容を記載', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[7].id, name: '電子請求書の送付・押印', timing: '毎月1日', dest: '業務企画Gr', owner: '', deadline: '', memo: 'ヤマト・Amazon等の電子請求書を竹森MG、長岡、濱口、長堀、井上へ転送\n派遣(長堀、井上)請求書ダウンロード\nヤマトがある時はダウンロード要(小嶺確認)', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[7].id, name: '改善提案月報', timing: '毎月10日', dest: '技術企画室', owner: '小嶺', deadline: '', memo: '製造室小嶺さんが集計→確認・追記後→本社資料に入力\n他の室・Grは担当者不明', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[7].id, name: '旧ハイプレ棚卸資料', timing: '毎月', dest: '業務企画Gr', owner: '', deadline: '', memo: '製品棚卸資料+有価材\n有価材も26年3月まで\n※旧ハイプレ北収益実績(毎月18日)は2024年度より不要', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[7].id, name: '災害・私傷病報告', timing: '毎月20日頃', dest: '安全衛生環境室', owner: '', deadline: '', memo: '', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[7].id, name: '本社安全衛生委員会', timing: '毎月20日頃', dest: '安全衛生環境室', owner: '', deadline: '', memo: '本社の委員会資料へ活動内容を記載', color: 'black', status: 'not-started', steps: [] },
 
     /* ── その他 (c[8]) ── */
-    { id: uid(), categoryId: c[8].id, name: '承認関係(購買・楽楽精算・BillOne・Bizプリカ)', timing: '随時', dest: '', owner: '', deadline: '', memo: '購買システム承認、楽楽精算、BillOne、Bizプリカ\n長堀さんの勤怠承認(3月分まで)\nグロービアの承認&書類の承認印(経理への届出必要)', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: 'AED管理', timing: '随時', dest: 'ミドリ安全北九州(田坂)', owner: '', deadline: '2026-11-18', memo: '有効期限を見て購入が必要(有効期限5年)\n11/18に設置から5年経過→買い替え必要\n3/16にバッテリー不具合で交換\n現在バッテリーチェックを製造に依頼→管理Grでの実施を依頼されている', color: 'orange', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: '献血対応', timing: '5月', dest: '赤十字', owner: '', deadline: '2026-05-07', memo: '5/7実施。第1会議室を受付会場\n近隣会社にも赤十字から声掛け、YKCを献血会場とする\n外部の方が工場内に入らないようチェーン・ロープで案内通路を明確にする\n献血車は第一機械室に横付け', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: '産業医対応', timing: '随時', dest: '西日本産業衛生会(ベル立田先生)', owner: '', deadline: '', memo: '安全衛生活動計画を先生と共有\n健康診断結果が送られてきたら早急に八田保健師にコピーを送る', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: '規定類のファイリング・旧版返却', timing: '随時', dest: '総務室', owner: '原野', deadline: '', memo: '本社からの規定類の受け取り、旧版返却\n受け取り書にサイン必要', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: '役所からの調査依頼', timing: '随時', dest: '本社', owner: '原野', deadline: '', memo: '所得・産休調査等は本社に依頼', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: '安全教育資料', timing: '随時', dest: '', owner: '松本GL', deadline: '', memo: '新人教育用として松本GLへ\n安全6則、TBM等', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: '工場建築図面管理', timing: '随時', dest: '', owner: '', deadline: '', memo: '保管場所: 共有フォルダ【事業部共通】\\【社外秘】総務\\建築図面', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: '毒物及び劇物管理', timing: '随時', dest: '', owner: '', deadline: '', memo: 'トイレ用尿石除去剤(エコノパワーリキッド/塩酸21%)\n鍵付き保管庫の使用が義務\n購入・使用・廃棄の履歴を記録、5年間保存\n「医薬用外劇物」の表示が必要\nCREATE-SIMPLE更新済み', color: 'red', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: '樹脂成型時案件の問い合わせ対応', timing: '随時', dest: '', owner: '', deadline: '', memo: 'たまに問い合わせあり\n最近は固定資産(設備・金型等)の話\n客先からの問い合わせは金型資産の2024年が最後', color: 'black', steps: [] },
-    { id: uid(), categoryId: c[8].id, name: '緑地面積管理(工場立地法)', timing: '随時', dest: '', owner: '', deadline: '', memo: '北九州工場と旧吉川精密を合算して登録\n裏の大きな木はファインテックの管理樹木\nファイル有り', color: 'black', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '承認関係(購買・楽楽精算・BillOne・Bizプリカ)', timing: '随時', dest: '', owner: '', deadline: '', memo: '購買システム承認、楽楽精算、BillOne、Bizプリカ\n長堀さんの勤怠承認(3月分まで)\nグロービアの承認&書類の承認印(経理への届出必要)', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: 'AED管理', timing: '随時', dest: 'ミドリ安全北九州(田坂)', owner: '', deadline: '2026-11-18', memo: '有効期限を見て購入が必要(有効期限5年)\n11/18に設置から5年経過→買い替え必要\n3/16にバッテリー不具合で交換\n現在バッテリーチェックを製造に依頼→管理Grでの実施を依頼されている', color: 'orange', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '献血対応', timing: '5月', dest: '赤十字', owner: '全員', deadline: '2026-05-07', memo: '5/7実施。第1会議室を受付会場\n近隣会社にも赤十字から声掛け、YKCを献血会場とする\n外部の方が工場内に入らないようチェーン・ロープで案内通路を明確にする\n献血車は第一機械室に横付け', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '産業医対応', timing: '随時', dest: '西日本産業衛生会(ベル立田先生)', owner: '', deadline: '', memo: '安全衛生活動計画を先生と共有\n健康診断結果が送られてきたら早急に八田保健師にコピーを送る', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '規定類のファイリング・旧版返却', timing: '随時', dest: '総務室', owner: '原野', deadline: '', memo: '本社からの規定類の受け取り、旧版返却\n受け取り書にサイン必要', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '役所からの調査依頼', timing: '随時', dest: '本社', owner: '原野', deadline: '', memo: '所得・産休調査等は本社に依頼', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '安全教育資料', timing: '随時', dest: '', owner: '松本GL', deadline: '', memo: '新人教育用として松本GLへ\n安全6則、TBM等', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '工場建築図面管理', timing: '随時', dest: '', owner: '', deadline: '', memo: '保管場所: 共有フォルダ【事業部共通】\\【社外秘】総務\\建築図面', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '毒物及び劇物管理', timing: '随時', dest: '', owner: '', deadline: '', memo: 'トイレ用尿石除去剤(エコノパワーリキッド/塩酸21%)\n鍵付き保管庫の使用が義務\n購入・使用・廃棄の履歴を記録、5年間保存\n「医薬用外劇物」の表示が必要\nCREATE-SIMPLE更新済み', color: 'red', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '樹脂成型時案件の問い合わせ対応', timing: '随時', dest: '', owner: '', deadline: '', memo: 'たまに問い合わせあり\n最近は固定資産(設備・金型等)の話\n客先からの問い合わせは金型資産の2024年が最後', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '緑地面積管理(工場立地法)', timing: '随時', dest: '', owner: '', deadline: '', memo: '北九州工場と旧吉川精密を合算して登録\n裏の大きな木はファインテックの管理樹木\nファイル有り', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '本社サイボウズ掲示板', timing: '随時', dest: '', owner: '', deadline: '', memo: '時々優待券などの案内あり\n以前はメール配信もあったが最近は掲示板のみの場合あり', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '安全関係の掲示板', timing: '随時', dest: '', owner: '', deadline: '', memo: '担当者会議や本社安全からの資料や指示事項等', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '環境目標達成計画書-電力使用量(ISO14001)', timing: '毎月', dest: '', owner: '', deadline: '', memo: '電力使用量のグラフ＆コメントを請求書データから更新し掲示する\n保管場所: 窓側棚6段目「環境側面抽出関係」付近', color: 'black', status: 'not-started', steps: [] },
+    { id: uid(), categoryId: c[8].id, name: '工場電話機の更新', timing: '随時', dest: '', owner: '', deadline: '', memo: '現在の電話機ではナンバー表示・履歴確認ができないため更新費用を確認\n山田商会に見積依頼済み\n臨時予算申請または下期予算申請検討中', color: 'black', status: 'not-started', steps: [] },
   ];
   save();
+}
+
+/* ── Owner Helpers ── */
+var STATUS_LABEL = { 'not-started': '未着手', 'in-progress': '進行中', 'completed': '完了' };
+var STATUS_CYCLE = { 'not-started': 'in-progress', 'in-progress': 'completed', 'completed': 'not-started' };
+
+function getUniqueOwners() {
+  var set = {};
+  D.tasks.forEach(function(t) {
+    var o = (t.owner || '').trim();
+    if (!o) return;
+    o.split('/').forEach(function(name) {
+      var n = name.trim();
+      if (n) set[n] = true;
+    });
+  });
+  return Object.keys(set).sort();
+}
+
+function getTasksByOwner(ownerName) {
+  if (ownerName === '__all__') return D.tasks.slice();
+  if (ownerName === '__none__') return D.tasks.filter(function(t) { return !t.owner || !t.owner.trim(); });
+  return D.tasks.filter(function(t) {
+    return t.owner && t.owner.indexOf(ownerName) >= 0;
+  });
+}
+
+function renderOwnerTaskRow(task) {
+  var cat = D.categories.filter(function(c) { return c.id === task.categoryId; })[0];
+  var status = task.status || 'not-started';
+  var effectiveColor = (task.color && task.color !== 'black') ? task.color : (cat && cat.color && cat.color !== 'black' ? cat.color : null);
+  var colorStyle = effectiveColor ? ' style="color:' + COLOR_MAP[effectiveColor] + '"' : '';
+  var html = '<div class="task-row" data-task-id="' + task.id + '">';
+  html += '<div class="task-name"><span' + colorStyle + '>' + esc(task.name) + '</span></div>';
+  html += '<div class="task-meta">';
+  if (task.timing) html += '<span class="task-badge badge-timing"' + colorStyle + '>' + esc(task.timing) + '</span>';
+  if (cat) html += '<span class="task-badge" style="background:rgba(107,70,193,0.08);color:#6B46C1;font-size:0.65rem">' + esc(cat.name) + '</span>';
+  html += '<span class="task-badge badge-status badge-status-' + status + '" data-task-id="' + task.id + '">' + STATUS_LABEL[status] + '</span>';
+  html += '</div></div>';
+  return html;
+}
+
+/* ── Render: Owner View ── */
+function renderOwnerView() {
+  var owners = getUniqueOwners();
+  var optHtml = '<option value="__all__"' + (selectedOwner === '__all__' ? ' selected' : '') + '>&#128101; 全員</option>';
+  optHtml += '<option value="__none__"' + (selectedOwner === '__none__' ? ' selected' : '') + '>&#10067; 未割当</option>';
+  owners.forEach(function(o) {
+    optHtml += '<option value="' + esc(o) + '"' + (selectedOwner === o ? ' selected' : '') + '>' + esc(o) + '</option>';
+  });
+  $ownerSelect.innerHTML = optHtml;
+
+  var tasks = getTasksByOwner(selectedOwner);
+  var total = tasks.length;
+  var notStarted = tasks.filter(function(t) { return (t.status || 'not-started') === 'not-started'; }).length;
+  var inProgress = tasks.filter(function(t) { return t.status === 'in-progress'; }).length;
+  var completed = tasks.filter(function(t) { return t.status === 'completed'; }).length;
+
+  $ownerStatsStrip.innerHTML =
+    '<div class="stat-card"><div class="stat-value">' + total + '</div><div class="stat-label">業務数</div></div>' +
+    '<div class="stat-card"><div class="stat-value">' + notStarted + '</div><div class="stat-label">未着手</div></div>' +
+    '<div class="stat-card"><div class="stat-value" style="color:var(--accent-blue)">' + inProgress + '</div><div class="stat-label">進行中</div></div>' +
+    '<div class="stat-card"><div class="stat-value" style="color:var(--accent-green)">' + completed + '</div><div class="stat-label">完了</div></div>';
+
+  if (selectedOwner === '__all__') {
+    var html = '';
+    // Render each owner as a group
+    var allOwners = owners.concat(['__none__']);
+    allOwners.forEach(function(ownerKey) {
+      var label = ownerKey === '__none__' ? '未割当' : ownerKey;
+      var oTasks = getTasksByOwner(ownerKey);
+      if (oTasks.length === 0) return;
+      var oCompleted = oTasks.filter(function(t) { return t.status === 'completed'; }).length;
+      html += '<div class="owner-group">';
+      html += '<div class="owner-group-header">';
+      html += '<span>' + esc(label) + ' (' + oTasks.length + '件)</span>';
+      html += '<span class="owner-progress">' + oCompleted + '/' + oTasks.length + ' 完了</span>';
+      html += '</div>';
+      html += '<div class="owner-group-body">';
+      oTasks.forEach(function(t) { html += renderOwnerTaskRow(t); });
+      html += '</div></div>';
+    });
+    $ownerTaskList.innerHTML = html;
+  } else {
+    var html = '';
+    tasks.forEach(function(t) { html += renderOwnerTaskRow(t); });
+    $ownerTaskList.innerHTML = html || '<div style="text-align:center;padding:20px;color:var(--text-muted)">該当する業務はありません</div>';
+  }
 }
 
 /* ── Render: Stats ── */
@@ -925,6 +1122,8 @@ function renderList() {
         if (task.timing) html += '<span class="task-badge badge-timing"' + colorStyle + '>' + esc(task.timing) + '</span>';
         if (task.steps && task.steps.length > 0) html += '<span class="task-badge badge-steps">' + task.steps.length + 'ステップ</span>';
         if (task.owner) html += '<span class="task-badge badge-owner"' + colorStyle + '>' + esc(task.owner) + '</span>';
+        var _st = task.status || 'not-started';
+        html += '<span class="task-badge badge-status badge-status-' + _st + '" data-task-id="' + task.id + '">' + STATUS_LABEL[_st] + '</span>';
         html += '</div>';
         html += '<div class="task-row-actions">';
         html += '<button class="task-edit" data-task-id="' + task.id + '" title="編集">&#9998;</button>';
@@ -1377,23 +1576,54 @@ function bindCatTouchDragDrop(container) {
 }
 
 /* ── View Switching ── */
+function updateTabBar() {
+  var tabs = $tabBar.querySelectorAll('.tab-item');
+  for (var i = 0; i < tabs.length; i++) {
+    var t = tabs[i];
+    if (t.getAttribute('data-tab') === currentTab) t.classList.add('active');
+    else t.classList.remove('active');
+  }
+}
+
 function showList() {
   currentView = 'list';
+  currentTab = 'list';
   currentTaskId = null;
   $viewList.classList.add('active');
   $viewDetail.classList.remove('active');
+  $viewOwner.classList.remove('active');
   $btnBack.classList.remove('visible');
   $navTitle.textContent = '引継ぎ業務フロー管理';
   $fab.innerHTML = '&#65291;';
+  $tabBar.style.display = 'flex';
+  updateTabBar();
   renderList();
+}
+
+function showOwnerView() {
+  currentView = 'list';
+  currentTab = 'owner';
+  currentTaskId = null;
+  $viewList.classList.remove('active');
+  $viewDetail.classList.remove('active');
+  $viewOwner.classList.add('active');
+  $btnBack.classList.remove('visible');
+  $navTitle.textContent = '担当者別';
+  $fab.innerHTML = '&#65291;';
+  $tabBar.style.display = 'flex';
+  updateTabBar();
+  renderOwnerView();
 }
 
 function showDetail(taskId) {
   currentView = 'detail';
+  previousTab = currentTab;
   currentTaskId = taskId;
   $viewList.classList.remove('active');
+  $viewOwner.classList.remove('active');
   $viewDetail.classList.add('active');
   $btnBack.classList.add('visible');
+  $tabBar.style.display = 'none';
   var task = D.tasks.find(function(t){ return t.id === taskId; });
   $navTitle.textContent = task ? task.name : '';
   $fab.innerHTML = '&#65291;';
@@ -1414,6 +1644,7 @@ function openTaskModal(taskId) {
   document.getElementById('fldDest').value = task ? (task.dest || '') : '';
   document.getElementById('fldOwner').value = task ? (task.owner || '') : '';
   document.getElementById('fldDeadline').value = task ? (task.deadline || '') : '';
+  document.getElementById('fldTaskStatus').value = task ? (task.status || 'not-started') : 'not-started';
   document.getElementById('fldMemo').value = task ? (task.memo || '') : '';
   setColorPicker('taskColorPicker', task ? (task.color || 'black') : 'black');
   openModal('modalTask');
@@ -1428,6 +1659,7 @@ function openTaskModalForCategory(catId) {
   document.getElementById('fldDest').value = '';
   document.getElementById('fldOwner').value = '';
   document.getElementById('fldDeadline').value = '';
+  document.getElementById('fldTaskStatus').value = 'not-started';
   document.getElementById('fldMemo').value = '';
   setColorPicker('taskColorPicker', 'black');
   openModal('modalTask');
@@ -1497,6 +1729,7 @@ function saveTaskFromModal() {
     dest: document.getElementById('fldDest').value.trim(),
     owner: document.getElementById('fldOwner').value.trim(),
     deadline: document.getElementById('fldDeadline').value,
+    status: document.getElementById('fldTaskStatus').value,
     memo: document.getElementById('fldMemo').value.trim(),
     color: getSelectedColor('taskColorPicker')
   };
@@ -1576,7 +1809,10 @@ function loadFromRemote() {
         categories: (parsed.categories || []).map(function(c) {
           return c.color ? c : Object.assign({}, c, { color: 'black' });
         }),
-        tasks: parsed.tasks || []
+        tasks: (parsed.tasks || []).map(function(t) {
+          if (!t.status) return Object.assign({}, t, { status: 'not-started' });
+          return t;
+        })
       };
       renderList();
     })
@@ -1612,7 +1848,15 @@ function importData(e) {
     try {
       var parsed = JSON.parse(ev.target.result);
       if (parsed.categories && parsed.tasks) {
-        D = { categories: parsed.categories, tasks: parsed.tasks };
+        D = {
+          categories: (parsed.categories || []).map(function(c) {
+            return c.color ? c : Object.assign({}, c, { color: 'black' });
+          }),
+          tasks: (parsed.tasks || []).map(function(t) {
+            if (!t.status) return Object.assign({}, t, { status: 'not-started' });
+            return t;
+          })
+        };
         save();
         showList();
       } else {
@@ -1648,10 +1892,59 @@ function init() {
   bindCatTouchDragDrop($categoryList);
 
   // Nav
-  onTap($btnBack, showList);
+  onTap($btnBack, function() {
+    if (previousTab === 'owner') showOwnerView();
+    else showList();
+  });
   onTap($fab, function() {
-    if (currentView === 'list') openTaskModal(null);
-    else openStepModal(null);
+    if (currentView === 'detail') openStepModal(null);
+    else openTaskModal(null);
+  });
+
+  // Tab bar
+  onTapDelegate($tabBar, '.tab-item', function(el) {
+    var tab = el.getAttribute('data-tab');
+    if (tab === 'list') showList();
+    else if (tab === 'owner') showOwnerView();
+  });
+
+  // Owner dropdown
+  $ownerSelect.addEventListener('change', function() {
+    selectedOwner = this.value;
+    renderOwnerView();
+  });
+
+  // Owner view: task row click → detail
+  onTapDelegate($ownerTaskList, '.task-row', function(el, e) {
+    if (e.target.closest && e.target.closest('.badge-status')) return;
+    var taskId = el.getAttribute('data-task-id');
+    if (taskId) showDetail(taskId);
+  });
+
+  // Status badge cycling (owner view)
+  onTapDelegate($ownerTaskList, '.badge-status', function(el, e) {
+    e.stopPropagation();
+    if (IS_REMOTE) return;
+    var taskId = el.getAttribute('data-task-id');
+    var task = D.tasks.filter(function(t) { return t.id === taskId; })[0];
+    if (!task) return;
+    task = Object.assign({}, task, { status: STATUS_CYCLE[task.status || 'not-started'] });
+    D.tasks = D.tasks.map(function(t) { return t.id === taskId ? task : t; });
+    save();
+    renderOwnerView();
+  });
+
+  // Status badge cycling (list view)
+  onTapDelegate($categoryList, '.badge-status', function(el, e) {
+    e.stopPropagation();
+    if (IS_REMOTE) return;
+    var taskId = el.getAttribute('data-task-id');
+    var task = D.tasks.filter(function(t) { return t.id === taskId; })[0];
+    if (!task) return;
+    task = Object.assign({}, task, { status: STATUS_CYCLE[task.status || 'not-started'] });
+    D.tasks = D.tasks.map(function(t) { return t.id === taskId ? task : t; });
+    save();
+    renderList();
   });
 
   // Sync / Export / Import
